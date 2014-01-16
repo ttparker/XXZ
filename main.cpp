@@ -60,7 +60,7 @@ int main()
 	{
 		std::cout << "Trial " << trial << ":" <<std::endl;
 		fileout << "Trial " << trial << ":" <<std::endl;
-		ham.modifyParams(trial);
+		modifyHamParams(trial);
 		int lSFinal = ham.lSys / 2 - 1;		// final length of the system block
 		std::vector<TheBlock> blocks(ham.lSys - 3);		// initialize system
 		blocks[0] = TheBlock(ham, mMax);	// initialize the one-site block

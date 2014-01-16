@@ -5,7 +5,6 @@ class Hamiltonian
 
 		Hamiltonian(int lSys, const std::vector<double>& couplingConstants,
 					int targetQNum);
-		void modifyParams(int trial);
  
         EIGEN_MAKE_ALIGNED_OPERATOR_NEW
   
@@ -23,4 +22,5 @@ class Hamiltonian
 										// joins the two free sites together
 
 	friend class TheBlock;
+    friend void modifyHamParams(int trial);
 };

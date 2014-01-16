@@ -11,3 +11,4 @@ void twoSiteExpValues(const MatrixDd& firstTwoSiteOp,
 					  const MatrixDd& secondTwoSiteOp, int rangeOfObservables,
 					  int currentLSys, EffectiveHamiltonian& hSuperFinal,
 					  std::vector<TheBlock>& blocks, std::ofstream& fileout);
+void modifyHamParams(int trial = 0);

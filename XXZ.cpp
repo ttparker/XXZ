@@ -28,11 +28,6 @@ Hamiltonian::Hamiltonian(int lSys, const std::vector<double>& couplingConstants,
 	oneSiteQNums.push_back(-1);
 };
 
-void Hamiltonian::modifyParams(int trial)
-{
-	trial;
-};
-
 MatrixXd Hamiltonian::blockSiteJoin(const std::vector<MatrixXd>& rhoBasisH2) const
 {
 	return jz * kp(rhoBasisSigmaz, sigmaz)

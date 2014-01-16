@@ -1,7 +1,7 @@
 PROG = XXZ
 CXX = g++
 CXXFLAGS = -Wall -Wextra -O3 -std=c++11 -march=native -I ../Eigen_3.2.0
-OBJS = EffectiveHamiltonian.o ESolver.o FreeFunctions.o main.o TheBlock.o XXZ.o
+OBJS = EffectiveHamiltonian.o ESolver.o FreeFunctions.o main.o modifyHamParams.o TheBlock.o XXZ.o
 COMMONHS = d.h main.h Hamiltonian.h
 light = rm -f *.cpp~ *.h~ Makefile~
 deep = rm -f $(PROG) *.o ./Output/*
