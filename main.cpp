@@ -1,0 +1,101 @@
+#include <time.h>
+#include <fstream>
+#include "d.h"
+#include "main.h"
+#include "Hamiltonian.h"
+#include "TheBlock.h"
+#include "EffectiveHamiltonian.h"
+#include "ESolver.h"
+#include "FreeFunctions.h"
+
+int TheBlock::mMax,							// declare static variables
+	Sector::fullMatrixSize;
+
+using namespace Eigen;
+
+int main()
+{
+    clock_t start = clock();
+
+	// **************** begin modifiable parameters
+	const int numberOfTrials = 1;
+	int lSys = 20;								// system length - must be even
+	std::vector<double> couplingConsts;
+	couplingConsts.reserve(2);
+	couplingConsts.push_back(5.);				// J_{xy}
+	couplingConsts.push_back(2.);				// J_z
+	int targetQNum = lSys * 1 / 5;				// targeted fractional average
+				// magnetization per site - product with lSys must be integer
+	int mMax = 12,								// max number of stored states
+		nSweeps = 2;						// number of sweeps to be performed
+
+	bool calcOneSiteExpValues = true, // calculate single-site expectation values?
+		 calcTwoSiteExpValues = true; // calculate two-site expectation values?
+	int rangeOfObservables = 20;	// number of sites in center at which to
+			// calculate observables (must be even and less than currentLSys)
+	MatrixDd oneSiteOp,
+			 firstTwoSiteOp,
+			 secondTwoSiteOp;
+	MatrixDd sigmax;
+	sigmax << 0., 1.,
+			  1., 0.;
+	MatrixDd sigmaz;
+	sigmaz << 1., 0.,
+			  0., -1.;
+	oneSiteOp = sigmaz,
+	firstTwoSiteOp = sigmax,
+	secondTwoSiteOp = sigmax;
+	// **************** end modifiable parameters
+
+	Hamiltonian ham(lSys, couplingConsts, targetQNum);
+										// initialize the system's Hamiltonian
+	std::ofstream fileout;
+	fileout.open("Output/Output", std::ios::out);
+	if (!fileout)
+	{
+		std::cout << "Couldn't open output file." << std::endl;
+		exit(1);
+	};
+	for(int trial = 0; trial < numberOfTrials; trial++)
+	{
+		std::cout << "Trial " << trial << ":" <<std::endl;
+		fileout << "Trial " << trial << ":" <<std::endl;
+		ham.modifyParams(trial);
+		int lSFinal = ham.lSys / 2 - 1;		// final length of the system block
+		std::vector<TheBlock> blocks(ham.lSys - 3);		// initialize system
+		blocks[0] = TheBlock(ham, mMax);	// initialize the one-site block
+		std::cout << "Performing iDMRG...\n";
+		halfSweep(blocks, 0, ham, true);			// perform the iDMRG steps
+        if(nSweeps != 0)
+            std::cout << "Performing fDMRG...\n";
+		for(int i = 1; i <= nSweeps; i++)			// perform the fDMRG sweeps
+		{
+			halfSweep(blocks, lSFinal - 1, ham, false);
+			halfSweep(blocks, 0, ham, false);
+			std::cout << "Sweep " << i << " complete." << std::endl;
+		};
+
+		EffectiveHamiltonian hSuperFinal(blocks[lSFinal - 1].createHSuperFinal(ham));
+											// calculate ground-state energy
+		fileout << "Ground state energy density = "
+				<< hSuperFinal.gsEnergy / ham.lSys << std::endl	<< std::endl;
+		std::cout << "Calculating observables..." << std::endl;
+		if(calcOneSiteExpValues)	// calculate one-site expectation values
+			oneSiteExpValues(oneSiteOp, rangeOfObservables, ham.lSys,
+							 hSuperFinal, blocks, fileout);
+		if(calcTwoSiteExpValues)	// calculate two-site expectation values
+			twoSiteExpValues(firstTwoSiteOp, secondTwoSiteOp,
+							 rangeOfObservables, ham.lSys, hSuperFinal, blocks,
+							 fileout);
+		std::cout << std::endl;
+		fileout << std::endl;
+	};
+
+	clock_t stop = clock();
+    std::cout << "Done." << std::endl;
+	fileout << "Elapsed time (s): " << (double)(stop - start)/CLOCKS_PER_SEC
+			<< std::endl;
+	fileout.close();
+
+	return 0;
+}
