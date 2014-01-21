@@ -23,7 +23,7 @@ TheBlock::TheBlock(const Hamiltonian& ham, int mMaxIn)
 };
 
 TheBlock TheBlock::nextBlock(const Hamiltonian& ham, bool infiniteStage,
-							 TheBlock& compBlock, int l)
+							 const TheBlock& compBlock, int l)
 {
 	std::vector<int> hSprimeQNumList	// add in quantum numbers of new site
 		= vectorProductSum(qNumList, ham.oneSiteQNums);
@@ -72,7 +72,7 @@ TheBlock TheBlock::nextBlock(const Hamiltonian& ham, bool infiniteStage,
 };
 
 std::tuple<MatrixXd, int, std::vector<int>, std::vector<int>, int>
-	TheBlock::createHSuperFinal(const Hamiltonian& ham)
+	TheBlock::createHSuperFinal(const Hamiltonian& ham) const
 {
 	return std::make_tuple(MatrixXd(kp(hS, Id(d * m * d))
 								    + kp(ham.blockSiteJoin(rhoBasisH2), Id(m * d))
@@ -85,7 +85,7 @@ std::tuple<MatrixXd, int, std::vector<int>, std::vector<int>, int>
 								    ham.targetQNum);
 };
 
-MatrixXd TheBlock::changeBasis(const MatrixXd& mat)
+MatrixXd TheBlock::changeBasis(const MatrixXd& mat) const
 {
 	return primeToRhoBasis.adjoint() * mat * primeToRhoBasis;
 };

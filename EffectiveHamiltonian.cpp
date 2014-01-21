@@ -110,7 +110,7 @@ void EffectiveHamiltonian::placeOp(const std::pair<MatrixDd, int>& op,
 };
 
 MatrixXd EffectiveHamiltonian::rhoBasisRep(const opsMap& blockOps,
-										   std::vector<TheBlock>& blocks)
+										   std::vector<TheBlock>& blocks) const
 {
 	if(blockOps.empty())
 		return Id(blocks[(blocks.size() + 3) / 2 - 2].m);
