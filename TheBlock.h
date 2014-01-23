@@ -25,10 +25,14 @@ class TheBlock
 		std::vector<int> qNumList;			// tracks the conserved quantum
 											// number of each row/column of hS
 		static int mMax;				// max size of effective Hamiltonian
+		static double lancTolerance;
 		Eigen::MatrixXd primeToRhoBasis;			// change-of-basis matrix
 
 		Eigen::MatrixXd changeBasis(const Eigen::MatrixXd& mat) const;
 				// represents operators in the basis of the new system block
 
+    friend void halfSweep(std::vector<TheBlock>& blocks, int start,
+                          const Hamiltonian& ham, bool infiniteStage,
+                          double lancTolerance);
 	friend class EffectiveHamiltonian;
 };

@@ -11,16 +11,17 @@ using namespace Eigen;
 
 EffectiveHamiltonian::EffectiveHamiltonian(
 	const std::tuple<Eigen::MatrixXd, int, std::vector<int>,
-					 std::vector<int>, int>& hSuperFinal)
+				 std::vector<int>, int>& hSuperFinal, double lancTolerance)
 	: mSFinal(std::get<1>(hSuperFinal))
 {
 	std::vector<int> hSprimeQNumList = 
 			vectorProductSum(std::get<2>(hSuperFinal), std::get<3>(hSuperFinal));
 	HamSolver hSuperSolver(std::get<0>(hSuperFinal),
 						   vectorProductSum(hSprimeQNumList, hSprimeQNumList),
-						   std::get<4>(hSuperFinal));
-	gsEnergy = hSuperSolver.lowestEval;
-	psiGround = hSuperSolver.psiGround;
+						   std::get<4>(hSuperFinal),
+                           lancTolerance);
+	psiGround = hSuperSolver.gState.first;
+	gsEnergy = hSuperSolver.gState.second;
 };
 
 double EffectiveHamiltonian::expValue(const opsVec& ops,

@@ -8,6 +8,8 @@
 
 using namespace Eigen;
 
+int Sector::fullMatrixSize;
+
 Sector::Sector(const std::vector<int>& qNumList, int qNum, const MatrixXd& mat)
 	: multiplicity(std::count(qNumList.begin(), qNumList.end(), qNum))
 {
@@ -38,12 +40,11 @@ VectorXd Sector::fillOutEvec(bool takeLowestIn)
 };
 
 HamSolver::HamSolver(const Eigen::MatrixXd& mat, const std::vector<int>& qNumList,
-					 int targetQNum)
+					 int targetQNum, double lancTolerance)
 {
 	Sector::fullMatrixSize = mat.rows();
 	Sector targetSector(qNumList, targetQNum, mat);
-	lowestEval = targetSector.sectorEvals(0);
-	psiGround = targetSector.fillOutEvec(true);
+	gState = std::make_pair(targetSector.fillOutEvec(true), targetSector.sectorEvals(0));
 					// fill out full matrix eigenvector from stored sector one
 };
 

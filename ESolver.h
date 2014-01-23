@@ -24,11 +24,10 @@ class Sector
 class HamSolver
 {
 	private:
-		double lowestEval;
-		Eigen::VectorXd psiGround;
+		std::pair<Eigen::VectorXd, double> gState;
 
 		HamSolver(const Eigen::MatrixXd& mat, const std::vector<int>& qNumList,
-				  int targetQNum);
+				  int targetQNum, double lancTolerance);
 	
 	friend class TheBlock;
 	friend class EffectiveHamiltonian;
