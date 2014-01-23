@@ -14,9 +14,13 @@ class Sector
 		int sectorColumnCounter;			// tracks which sector eigenvector
 											// to fill into a matrix eigenvector
 
+
+        int sectorColumn;
+
+
 		Sector(const std::vector<int>& qNumList, int qNum,
 			   const Eigen::MatrixXd& mat, double lancTolerance = 0.);
-		Eigen::VectorXd filledOutEvec(Eigen::VectorXd sectorEvec, bool takeLowest);
+		Eigen::VectorXd filledOutEvec();
         std::pair<Eigen::VectorXd, double> solveForLowest();
         void solveForAll();
         Eigen::VectorXd nextHighestEvec();
