@@ -65,10 +65,8 @@ std::pair<VectorXd, double> lanczos(const MatrixXd& mat, double tolerance)
         // Lanczos stage 2: diagonalize tridiagonal matrix
         N++;
         D = a;
-//        E.assign(b.begin() + 1, b.end());
-//        E = std::vector<double>(b.begin() + 1, b.end());
-        E = b;
-        E.erase(E.begin());
+        E.reserve(N);
+        E.assign(b.begin() + 1, b.end());
         W.reserve(N);
         Z.resize(N);
         LDZ = N;
