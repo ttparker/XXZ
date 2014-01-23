@@ -30,17 +30,17 @@ Sector::Sector(const std::vector<int>& qNumList, int qNum, const MatrixXd& mat,
 
 VectorXd Sector::filledOutEvec(VectorXd sectorEvec)
 {
-	VectorXd evec = VectorXd::Zero(fullMatrixSize);
+	VectorXd longEvec = VectorXd::Zero(fullMatrixSize);
 	for(int i = 0; i < multiplicity; i++)
-		evec(positions[i]) = sectorEvec(i);
-	return evec;
+		longEvec(positions[i]) = sectorEvec(i);
+	return longEvec;
 };
 
 std::pair<Eigen::VectorXd, double> Sector::solveForLowest()
 {
-    solveForAll();
-    VectorXd temp = filledOutEvec(solver.eigenvectors().col(0));
-    return std::make_pair(temp, solver.eigenvalues()(0));
+    std::pair<VectorXd, double> lowestEvecInfo = lanczos(sectorMat, lancTolerance);
+    return std::pair<VectorXd, double>(filledOutEvec(lowestEvecInfo.first),
+                                       lowestEvecInfo.second);
 };
 
 void Sector::solveForAll()
