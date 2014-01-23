@@ -37,19 +37,32 @@ VectorXd Sector::filledOutEvec(VectorXd sectorEvec, bool takeLowest)
 	return evec;
 };
 
+std::pair<Eigen::VectorXd, double> Sector::solveForLowest()
+{
+    solveForAll();
+    return std::make_pair(filledOutEvec(VectorXd(), true), solver.eigenvalues()(0));
+};
+
 void Sector::solveForAll()
 {
     solver.compute(sectorMat);
+};
+
+Eigen::VectorXd Sector::nextHighestEvec()
+{
+    int sectorColumn = --sectorColumnCounter;
+    VectorXd evec = VectorXd::Zero(fullMatrixSize);
+    for(int i = 0; i < multiplicity; i++)
+        evec(positions[i]) = solver.eigenvectors()(i, sectorColumn);
+    return evec;
 };
 
 HamSolver::HamSolver(const Eigen::MatrixXd& mat, const std::vector<int>& qNumList,
 					 int targetQNum, double lancTolerance)
 {
 	Sector::fullMatrixSize = mat.rows();
-	Sector targetSector(qNumList, targetQNum, mat);
-    targetSector.solveForAll();
-	gState = std::make_pair(targetSector.filledOutEvec(VectorXd(), true), targetSector.solver.eigenvalues()(0));
-					// fill out full matrix eigenvector from stored sector one
+	Sector targetSector(qNumList, targetQNum, mat, lancTolerance);
+    gState = targetSector.solveForLowest();
 };
 
 DMSolver::DMSolver(const Eigen::MatrixXd& mat, const std::vector<int>& qNumList,
@@ -66,8 +79,9 @@ DMSolver::DMSolver(const Eigen::MatrixXd& mat, const std::vector<int>& qNumList,
 					   std::make_pair(qNum, Sector(qNumList, qNum, mat)));
         sectors[qNum].solveForAll();
 		for(int i = 0, end = sectors[qNum].multiplicity; i < end; i++)
-			indexedEvals.insert(		// add indexed eigenvalues to list
-					std::pair<double, int>(sectors[qNum].solver.eigenvalues()(i), qNum));
+			indexedEvals.insert(std::pair<double, int>
+                                (sectors[qNum].solver.eigenvalues()(i), qNum));
+                                            // add indexed eigenvalues to list
 	};
 	highestEvecQNums.reserve(evecsToKeep);
 	highestEvecs = MatrixXd::Zero(matSize, evecsToKeep);
@@ -76,6 +90,6 @@ DMSolver::DMSolver(const Eigen::MatrixXd& mat, const std::vector<int>& qNumList,
 	{
 		int qNum = currentIndexedEval++ -> second;
 		highestEvecQNums.push_back(qNum);
-		highestEvecs.col(j) = sectors[qNum].filledOutEvec(VectorXd(), false);
+		highestEvecs.col(j) = sectors[qNum].nextHighestEvec();
 	};
 };
