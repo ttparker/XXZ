@@ -7,14 +7,17 @@ class Sector
 		std::vector<int> positions;			// which rows and columns
 											// of matrix are in sector
 		int multiplicity;					// size of this symmetry sector
-		Eigen::MatrixXd sectorEvecs;		// sector eigenvectors
+        Eigen::MatrixXd sectorMat;          // sector operator
+        static int fullMatrixSize;
+        double lancTolerance;
+        
+        Eigen::SelfAdjointEigenSolver<Eigen::MatrixXd> solver; // DM eigensystem
 		Eigen::VectorXd sectorEvals;		// eigenvalues
 		int sectorColumnCounter;			// tracks which sector eigenvector
 											// to fill into a matrix eigenvector
-		static int fullMatrixSize;
 
 		Sector(const std::vector<int>& qNumList, int qNum,
-			   const Eigen::MatrixXd& mat);
+			   const Eigen::MatrixXd& mat, double lancTolerance = 0.);
 		Eigen::VectorXd fillOutEvec(bool takeLowest);
 
 	friend class HamSolver;

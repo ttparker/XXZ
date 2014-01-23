@@ -5,29 +5,29 @@
 #include "Hamiltonian.h"
 #include "TheBlock.h"
 #include "ESolver.h"
+#include "Lanczos.h"
 
 using namespace Eigen;
 
 int Sector::fullMatrixSize;
 
-Sector::Sector(const std::vector<int>& qNumList, int qNum, const MatrixXd& mat)
-	: multiplicity(std::count(qNumList.begin(), qNumList.end(), qNum))
+Sector::Sector(const std::vector<int>& qNumList, int qNum, const MatrixXd& mat,
+               double lancTolerance)
+	: multiplicity(std::count(qNumList.begin(), qNumList.end(), qNum)),
+	  sectorMat(MatrixXd(multiplicity, multiplicity)), lancTolerance(lancTolerance),
+	  sectorColumnCounter(multiplicity)
 {
 	positions.reserve(multiplicity);
 	for(auto firstElement = qNumList.begin(), qNumListElement = firstElement,
 		end = qNumList.end(); qNumListElement != end; qNumListElement++)
 		if(*qNumListElement == qNum)
 		   positions.push_back(qNumListElement - firstElement);
-	MatrixXd sectorMat(multiplicity, multiplicity);			// sector operator
 	int elmt = 0;
 	for(int j : positions)			// fill sector matrix elements from matrix
 		for(int i : positions)
 			sectorMat(elmt++) = mat(i, j);
-	SelfAdjointEigenSolver<MatrixXd> solver(sectorMat);
-	sectorEvecs = solver.eigenvectors();
-	sectorEvals = solver.eigenvalues();						// and eigenvalues
-	sectorColumnCounter = multiplicity;		// start from the rightmost column
-	fullMatrixSize = mat.rows();
+
+    solver.compute(sectorMat);
 };
 
 VectorXd Sector::fillOutEvec(bool takeLowestIn)
@@ -35,7 +35,7 @@ VectorXd Sector::fillOutEvec(bool takeLowestIn)
 	int sectorColumn = takeLowestIn ? 0 : --sectorColumnCounter;
 	VectorXd evec = VectorXd::Zero(fullMatrixSize);
 	for(int i = 0; i < multiplicity; i++)
-		evec(positions[i]) = sectorEvecs(i, sectorColumn);
+		evec(positions[i]) = solver.eigenvectors()(i, sectorColumn);
 	return evec;
 };
 
@@ -44,7 +44,7 @@ HamSolver::HamSolver(const Eigen::MatrixXd& mat, const std::vector<int>& qNumLis
 {
 	Sector::fullMatrixSize = mat.rows();
 	Sector targetSector(qNumList, targetQNum, mat);
-	gState = std::make_pair(targetSector.fillOutEvec(true), targetSector.sectorEvals(0));
+	gState = std::make_pair(targetSector.fillOutEvec(true), targetSector.solver.eigenvalues()(0));
 					// fill out full matrix eigenvector from stored sector one
 };
 
@@ -60,9 +60,9 @@ DMSolver::DMSolver(const Eigen::MatrixXd& mat, const std::vector<int>& qNumList,
 	{
 		sectors.insert(sectors.end(),					// create sector
 					   std::make_pair(qNum, Sector(qNumList, qNum, mat)));
-		for(int i = 0, end = sectors[qNum].sectorEvals.size(); i < end; i++)
+		for(int i = 0, end = sectors[qNum].multiplicity; i < end; i++)
 			indexedEvals.insert(		// add indexed eigenvalues to list
-					std::pair<double, int>(sectors[qNum].sectorEvals(i), qNum));
+					std::pair<double, int>(sectors[qNum].solver.eigenvalues()(i), qNum));
 	};
 	highestEvecQNums.reserve(evecsToKeep);
 	highestEvecs = MatrixXd::Zero(matSize, evecsToKeep);
