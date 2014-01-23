@@ -12,7 +12,8 @@ class EffectiveHamiltonian
 
         EffectiveHamiltonian(
 			const std::tuple<Eigen::MatrixXd, int, std::vector<int>,
-							 std::vector<int>, int>& hSuperFinal);
+							 std::vector<int>, int>& hSuperFinal,
+			double lancTolerance);
         double expValue(const opsVec& ops, std::vector<TheBlock>& blocks);
 		// calculates exectation value of a combination of single-site operators
 

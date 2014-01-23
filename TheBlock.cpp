@@ -9,6 +9,9 @@
 
 using namespace Eigen;
 
+int TheBlock::mMax;
+double TheBlock::lancTolerance;
+
 TheBlock::TheBlock(int m, const MatrixXd& hS,
 				   const std::vector<MatrixXd>& rhoBasisH2,
 				   const std::vector<int>& qNumList)
@@ -46,7 +49,8 @@ TheBlock TheBlock::nextBlock(const Hamiltonian& ham, bool infiniteStage,
 												 + kp(Id(md), hSprime)),
 										vectorProductSum(hSprimeQNumList,
 														hSprimeQNumList),
-										ham.targetQNum * (l + 2) / ham.lSys * 2) :
+										ham.targetQNum * (l + 2) / ham.lSys * 2,
+                                        lancTolerance) :
 											// int automatically rounds down
 							  HamSolver(MatrixXd(kp(hSprime, Id(compBlock.m * d))
 												 + ham.siteSiteJoin(m, compBlock.m)
@@ -57,8 +61,9 @@ TheBlock TheBlock::nextBlock(const Hamiltonian& ham, bool infiniteStage,
 										vectorProductSum(hSprimeQNumList,
 														 vectorProductSum(compBlock.qNumList,
 																		  ham.oneSiteQNums)),
-										ham.targetQNum));
-	rmMatrixXd psiGround = hSuperSolver.psiGround;				// ground state
+										ham.targetQNum,
+                                        lancTolerance));
+	rmMatrixXd psiGround = hSuperSolver.gState.first;				// ground state
     psiGround.resize(md, (infiniteStage ? m : compBlock.m) * d);
 	DMSolver rhoSolver(psiGround * psiGround.adjoint(), hSprimeQNumList, mMax);
 											// find density matrix eigenstates

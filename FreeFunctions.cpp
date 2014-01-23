@@ -7,9 +7,10 @@
 
 using namespace Eigen;
 
-void halfSweep(std::vector<TheBlock>& blocks, int start,
-			   const Hamiltonian& ham, bool infiniteStage)
+void halfSweep(std::vector<TheBlock>& blocks, int start, const Hamiltonian& ham,
+               bool infiniteStage, double lancTolerance)
 {
+    TheBlock::lancTolerance = lancTolerance;
 	for(int site = start, end = start + ham.lSys / 2 - 2; site < end; site++)
 		blocks[site + 1] = blocks[site].nextBlock(ham, infiniteStage,
 												  blocks[ham.lSys - site - 4],

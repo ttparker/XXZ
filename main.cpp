@@ -8,9 +8,6 @@
 #include "ESolver.h"
 #include "FreeFunctions.h"
 
-int TheBlock::mMax,							// declare static variables
-	Sector::fullMatrixSize;
-
 using namespace Eigen;
 
 int main()
@@ -28,6 +25,7 @@ int main()
 				// magnetization per site - product with lSys must be integer
 	int mMax = 12,								// max number of stored states
 		nSweeps = 2;						// number of sweeps to be performed
+    double lancTolerance = 1e-6;            // acceptable error of ground state
 
 	bool calcOneSiteExpValues = true, // calculate single-site expectation values?
 		 calcTwoSiteExpValues = true; // calculate two-site expectation values?
@@ -65,17 +63,18 @@ int main()
 		std::vector<TheBlock> blocks(ham.lSys - 3);		// initialize system
 		blocks[0] = TheBlock(ham, mMax);	// initialize the one-site block
 		std::cout << "Performing iDMRG...\n";
-		halfSweep(blocks, 0, ham, true);			// perform the iDMRG steps
+		halfSweep(blocks, 0, ham, true, lancTolerance);		// perform the iDMRG steps
         if(nSweeps != 0)
             std::cout << "Performing fDMRG...\n";
 		for(int i = 1; i <= nSweeps; i++)			// perform the fDMRG sweeps
 		{
-			halfSweep(blocks, lSFinal - 1, ham, false);
-			halfSweep(blocks, 0, ham, false);
+			halfSweep(blocks, lSFinal - 1, ham, false, lancTolerance);
+			halfSweep(blocks, 0, ham, false, lancTolerance);
 			std::cout << "Sweep " << i << " complete." << std::endl;
 		};
 
-		EffectiveHamiltonian hSuperFinal(blocks[lSFinal - 1].createHSuperFinal(ham));
+		EffectiveHamiltonian hSuperFinal(blocks[lSFinal - 1].createHSuperFinal(ham),
+                                         lancTolerance);
 											// calculate ground-state energy
 		fileout << "Ground state energy density = "
 				<< hSuperFinal.gsEnergy / ham.lSys << std::endl	<< std::endl;
