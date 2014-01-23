@@ -26,17 +26,20 @@ Sector::Sector(const std::vector<int>& qNumList, int qNum, const MatrixXd& mat,
 	for(int j : positions)			// fill sector matrix elements from matrix
 		for(int i : positions)
 			sectorMat(elmt++) = mat(i, j);
-
-    solver.compute(sectorMat);
 };
 
-VectorXd Sector::fillOutEvec(bool takeLowestIn)
+VectorXd Sector::filledOutEvec(VectorXd sectorEvec, bool takeLowest)
 {
-	int sectorColumn = takeLowestIn ? 0 : --sectorColumnCounter;
+	int sectorColumn = takeLowest ? 0 : --sectorColumnCounter;
 	VectorXd evec = VectorXd::Zero(fullMatrixSize);
 	for(int i = 0; i < multiplicity; i++)
 		evec(positions[i]) = solver.eigenvectors()(i, sectorColumn);
 	return evec;
+};
+
+void Sector::solveForAll()
+{
+    solver.compute(sectorMat);
 };
 
 HamSolver::HamSolver(const Eigen::MatrixXd& mat, const std::vector<int>& qNumList,
@@ -44,7 +47,8 @@ HamSolver::HamSolver(const Eigen::MatrixXd& mat, const std::vector<int>& qNumLis
 {
 	Sector::fullMatrixSize = mat.rows();
 	Sector targetSector(qNumList, targetQNum, mat);
-	gState = std::make_pair(targetSector.fillOutEvec(true), targetSector.solver.eigenvalues()(0));
+    targetSector.solveForAll();
+	gState = std::make_pair(targetSector.filledOutEvec(VectorXd(), true), targetSector.solver.eigenvalues()(0));
 					// fill out full matrix eigenvector from stored sector one
 };
 
@@ -60,6 +64,7 @@ DMSolver::DMSolver(const Eigen::MatrixXd& mat, const std::vector<int>& qNumList,
 	{
 		sectors.insert(sectors.end(),					// create sector
 					   std::make_pair(qNum, Sector(qNumList, qNum, mat)));
+        sectors[qNum].solveForAll();
 		for(int i = 0, end = sectors[qNum].multiplicity; i < end; i++)
 			indexedEvals.insert(		// add indexed eigenvalues to list
 					std::pair<double, int>(sectors[qNum].solver.eigenvalues()(i), qNum));
@@ -71,6 +76,6 @@ DMSolver::DMSolver(const Eigen::MatrixXd& mat, const std::vector<int>& qNumList,
 	{
 		int qNum = currentIndexedEval++ -> second;
 		highestEvecQNums.push_back(qNum);
-		highestEvecs.col(j) = sectors[qNum].fillOutEvec(false);
+		highestEvecs.col(j) = sectors[qNum].filledOutEvec(VectorXd(), false);
 	};
 };

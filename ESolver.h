@@ -10,15 +10,16 @@ class Sector
         Eigen::MatrixXd sectorMat;          // sector operator
         static int fullMatrixSize;
         double lancTolerance;
-        
         Eigen::SelfAdjointEigenSolver<Eigen::MatrixXd> solver; // DM eigensystem
-		Eigen::VectorXd sectorEvals;		// eigenvalues
 		int sectorColumnCounter;			// tracks which sector eigenvector
 											// to fill into a matrix eigenvector
 
 		Sector(const std::vector<int>& qNumList, int qNum,
 			   const Eigen::MatrixXd& mat, double lancTolerance = 0.);
-		Eigen::VectorXd fillOutEvec(bool takeLowest);
+		Eigen::VectorXd filledOutEvec(Eigen::VectorXd sectorEvec, bool takeLowest);
+        std::pair<Eigen::VectorXd, double> solveForLowest();
+        void solveForAll();
+        Eigen::VectorXd nextHighestEvec();
 
 	friend class HamSolver;
 	friend class DMSolver;
