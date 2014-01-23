@@ -25,7 +25,6 @@ Sector::Sector(const std::vector<int>& qNumList, int qNum, const MatrixXd& mat)
 	sectorEvecs = solver.eigenvectors();
 	sectorEvals = solver.eigenvalues();						// and eigenvalues
 	sectorColumnCounter = multiplicity;		// start from the rightmost column
-	fullMatrixSize = mat.rows();
 };
 
 VectorXd Sector::fillOutEvec(bool takeLowestIn)
