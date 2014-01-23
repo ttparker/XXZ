@@ -15,7 +15,7 @@ class Sector
 											// to fill into a matrix eigenvector
 		Sector(const std::vector<int>& qNumList, int qNum,
 			   const Eigen::MatrixXd& mat, double lancTolerance = 0.);
-		Eigen::VectorXd filledOutEvec(int sectorColumn);
+		Eigen::VectorXd filledOutEvec(Eigen::VectorXd sectorEvec);
         std::pair<Eigen::VectorXd, double> solveForLowest();
         void solveForAll();
         Eigen::VectorXd nextHighestEvec();

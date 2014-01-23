@@ -28,18 +28,18 @@ Sector::Sector(const std::vector<int>& qNumList, int qNum, const MatrixXd& mat,
 			sectorMat(elmt++) = mat(i, j);
 };
 
-VectorXd Sector::filledOutEvec(int sectorColumn)
+VectorXd Sector::filledOutEvec(VectorXd sectorEvec)
 {
 	VectorXd evec = VectorXd::Zero(fullMatrixSize);
 	for(int i = 0; i < multiplicity; i++)
-		evec(positions[i]) = solver.eigenvectors()(i, sectorColumn);
+		evec(positions[i]) = sectorEvec(i);
 	return evec;
 };
 
 std::pair<Eigen::VectorXd, double> Sector::solveForLowest()
 {
     solveForAll();
-    VectorXd temp = filledOutEvec(0);
+    VectorXd temp = filledOutEvec(solver.eigenvectors().col(0));
     return std::make_pair(temp, solver.eigenvalues()(0));
 };
 
@@ -50,7 +50,7 @@ void Sector::solveForAll()
 
 Eigen::VectorXd Sector::nextHighestEvec()
 {
-    return filledOutEvec(--sectorColumnCounter);
+    return filledOutEvec(solver.eigenvectors().col(--sectorColumnCounter));
 };
 
 HamSolver::HamSolver(const Eigen::MatrixXd& mat, const std::vector<int>& qNumList,
