@@ -1,3 +1,5 @@
+typedef std::pair<Eigen::VectorXd, double> state;
+
 class Sector
 {
 	public:
@@ -16,7 +18,7 @@ class Sector
 		Sector(const std::vector<int>& qNumList, int qNum,
 			   const Eigen::MatrixXd& mat, double lancTolerance = 0.);
 		Eigen::VectorXd filledOutEvec(Eigen::VectorXd sectorEvec);
-        std::pair<Eigen::VectorXd, double> solveForLowest();
+        state solveForLowest();
         void solveForAll();
         Eigen::VectorXd nextHighestEvec();
 
@@ -27,7 +29,7 @@ class Sector
 class HamSolver
 {
 	private:
-		std::pair<Eigen::VectorXd, double> gState;
+		state gState;
 
 		HamSolver(const Eigen::MatrixXd& mat, const std::vector<int>& qNumList,
 				  int targetQNum, double lancTolerance);

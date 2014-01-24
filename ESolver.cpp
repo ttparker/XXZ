@@ -36,11 +36,10 @@ VectorXd Sector::filledOutEvec(VectorXd sectorEvec)
 	return longEvec;
 };
 
-std::pair<Eigen::VectorXd, double> Sector::solveForLowest()
+state Sector::solveForLowest()
 {
-    std::pair<VectorXd, double> lowestEvecInfo = lanczos(sectorMat, lancTolerance);
-    return std::pair<VectorXd, double>(filledOutEvec(lowestEvecInfo.first),
-                                       lowestEvecInfo.second);
+    state lowestEState = lanczos(sectorMat, lancTolerance);
+    return state(filledOutEvec(lowestEState.first), lowestEState.second);
 };
 
 void Sector::solveForAll()
