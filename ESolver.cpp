@@ -28,7 +28,7 @@ Sector::Sector(const std::vector<int>& qNumList, int qNum, const MatrixXd& mat,
 			sectorMat(elmt++) = mat(i, j);
 };
 
-VectorXd Sector::filledOutEvec(VectorXd sectorEvec)
+VectorXd Sector::filledOutEvec(VectorXd sectorEvec) const
 {
 	VectorXd longEvec = VectorXd::Zero(fullMatrixSize);
 	for(int i = 0; i < multiplicity; i++)
@@ -36,7 +36,7 @@ VectorXd Sector::filledOutEvec(VectorXd sectorEvec)
 	return longEvec;
 };
 
-state Sector::solveForLowest()
+state Sector::solveForLowest() const
 {
     state lowestEState = lanczos(sectorMat, lancTolerance);
     return state(filledOutEvec(lowestEState.first), lowestEState.second);
