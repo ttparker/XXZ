@@ -11,8 +11,9 @@ using namespace Eigen;
 
 EffectiveHamiltonian::EffectiveHamiltonian(
 	const std::tuple<Eigen::MatrixXd, int, std::vector<int>,
-				 std::vector<int>, int>& hSuperFinal, double lancTolerance)
-	: mSFinal(std::get<1>(hSuperFinal))
+				 std::vector<int>, int>& hSuperFinal, double lancTolerance,
+                                           int skips)
+	: mSFinal(std::get<1>(hSuperFinal)), skips(skips)
 {
 	std::vector<int> hSprimeQNumList = 
 			vectorProductSum(std::get<2>(hSuperFinal), std::get<3>(hSuperFinal));
@@ -141,9 +142,9 @@ MatrixXd EffectiveHamiltonian::rhoBasisRep(const opsMap& blockOps,
                                             == currentOp -> first - 1 ?
                                         currentOp++ -> second :
                                         Id_d));
-        rhoBasisBlockOp = (currentSite -> m * d <= TheBlock::mMax ?
-                        primeBasisBlockOp :
-                        currentSite -> changeBasis(primeBasisBlockOp));
+        rhoBasisBlockOp = (currentSite - firstSite < skips ?
+                           primeBasisBlockOp :
+                           currentSite -> changeBasis(primeBasisBlockOp));
     };
 	return rhoBasisBlockOp;
 };

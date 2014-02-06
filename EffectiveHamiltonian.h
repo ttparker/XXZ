@@ -13,13 +13,14 @@ class EffectiveHamiltonian
         EffectiveHamiltonian(
 			const std::tuple<Eigen::MatrixXd, int, std::vector<int>,
 							 std::vector<int>, int>& hSuperFinal,
-			double lancTolerance);
+			double lancTolerance, int skips);
         double expValue(const opsVec& ops, std::vector<TheBlock>& blocks);
 		// calculates exectation value of a combination of single-site operators
 
     private:
-		int mSFinal;				// final number of states stored per block
-		rmMatrixXd psiGround;				// final superblock ground state
+        rmMatrixXd psiGround;               // final superblock ground state
+		int mSFinal,				// final number of states stored per block
+            skips;                  // number of edge sites in the position basis
 
         void placeOp(const std::pair<MatrixDd, int>& op, opsMap& blockSide,
                      bool reflect, int lSupFinal = 0);
