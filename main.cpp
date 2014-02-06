@@ -23,7 +23,7 @@ int main()
 	couplingConsts.push_back(2.);				// J_z
 	int targetQNum = lSys * 1 / 5;				// targeted fractional average
 				// magnetization per site - product with lSys must be integer
-	int mMax = 12,								// max number of stored states
+	int mMax = 16,								// max number of stored states
 		nSweeps = 2;						// number of sweeps to be performed
     double lancTolerance = 1e-6;            // acceptable error of ground state
 
@@ -62,14 +62,25 @@ int main()
 		int lSFinal = ham.lSys / 2 - 1;		// final length of the system block
 		std::vector<TheBlock> blocks(ham.lSys - 3);		// initialize system
 		blocks[0] = TheBlock(ham, mMax);	// initialize the one-site block
-		std::cout << "Performing iDMRG...\n";
-		halfSweep(blocks, 0, ham, true, lancTolerance);		// perform the iDMRG steps
+        int skips = 0;
+        for(int runningKeptStates = d * d; runningKeptStates <= mMax; skips++)
+            runningKeptStates *= d; // find how many edge sites can be skipped
+        std::cout << "Performing iDMRG..." << std::endl;
+        for(int site = 0; site < skips; site++)
+            blocks[site + 1] = blocks[site].nextBlock(ham);       // initial ED
+        TheBlock::lancTolerance = lancTolerance;
+        for(int site = skips, end = lSFinal - 1; site < end; site++)
+            blocks[site + 1] = blocks[site].nextBlock(ham, false, true, site);
         if(nSweeps != 0)
-            std::cout << "Performing fDMRG...\n";
+            std::cout << "Performing fDMRG..." << std::endl;
 		for(int i = 1; i <= nSweeps; i++)			// perform the fDMRG sweeps
 		{
-			halfSweep(blocks, lSFinal - 1, ham, false, lancTolerance);
-			halfSweep(blocks, 0, ham, false, lancTolerance);
+            for(int site = lSFinal - 1, end = ham.lSys - 4 - skips; site < end; site++)
+                blocks[site + 1] = blocks[site].nextBlock(ham, false, false, site,
+                                                          blocks[ham.lSys - 4 - site]);
+            for(int site = skips, end = lSFinal - 1; site < end; site++)
+                blocks[site + 1] = blocks[site].nextBlock(ham, false, false, site,
+                                                          blocks[ham.lSys - 4 - site]);
 			std::cout << "Sweep " << i << " complete." << std::endl;
 		};
 

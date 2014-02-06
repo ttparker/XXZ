@@ -1,6 +1,3 @@
-void halfSweep(std::vector<TheBlock>& blocks, int start, const Hamiltonian& ham,
-               bool infiniteStage, double lancTolerance);
-												// perform half of a DMRG sweep
 std::vector<int> vectorProductSum(const std::vector<int>& first,
 								  const std::vector<int>& second);
 			// takes the tensor product of two blocks' lists of quantum numbers

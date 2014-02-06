@@ -25,8 +25,9 @@ TheBlock::TheBlock(const Hamiltonian& ham, int mMaxIn)
 					  ham.h2.begin() + ham.couplingConstants.size());
 };
 
-TheBlock TheBlock::nextBlock(const Hamiltonian& ham, bool infiniteStage,
-							 const TheBlock& compBlock, int l)
+TheBlock TheBlock::nextBlock(const Hamiltonian& ham, bool exactDiag,
+                             bool infiniteStage, int l,
+                             const TheBlock& compBlock)
 {
 	std::vector<int> hSprimeQNumList	// add in quantum numbers of new site
 		= vectorProductSum(qNumList, ham.oneSiteQNums);
@@ -36,7 +37,7 @@ TheBlock TheBlock::nextBlock(const Hamiltonian& ham, bool infiniteStage,
 	int indepCouplingOperators = ham.couplingConstants.size();
 	tempRhoBasisH2.reserve(indepCouplingOperators);
 	int md = m * d;
-	if(md <= mMax)
+	if(exactDiag)
 	{ // if near edge of system, no truncation necessary so skip DMRG algorithm
         for(auto op = ham.h2.begin(), end = ham.h2.begin() + indepCouplingOperators;
 			op != end; op++)
@@ -68,8 +69,8 @@ TheBlock TheBlock::nextBlock(const Hamiltonian& ham, bool infiniteStage,
 	DMSolver rhoSolver(psiGround * psiGround.adjoint(), hSprimeQNumList, mMax);
 											// find density matrix eigenstates
 	primeToRhoBasis = rhoSolver.highestEvecs;	// construct change-of-basis matrix
-	for(auto op = ham.h2.begin(),
-			 end = ham.h2.begin() + indepCouplingOperators; op != end; op++)
+	for(auto op = ham.h2.begin(), end = ham.h2.begin() + indepCouplingOperators;
+        op != end; op++)
 		tempRhoBasisH2.push_back(changeBasis(kp(Id(m), *op)));
 	return TheBlock(mMax, changeBasis(hSprime), tempRhoBasisH2,
 					rhoSolver.highestEvecQNums);
