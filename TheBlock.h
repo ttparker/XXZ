@@ -1,6 +1,8 @@
 typedef Eigen::Matrix<double, Eigen::Dynamic, Eigen::Dynamic, Eigen::RowMajor>
     rmMatrixXd;
 
+class EffectiveHamiltonian;
+
 class TheBlock
 {
 	public:
@@ -17,8 +19,9 @@ class TheBlock
 						   const TheBlock& compBlock = TheBlock());
                                                    // performs each DMRG step -
 				// the last argument is the environment block in the fDMRG stage
-		std::tuple<Eigen::MatrixXd, int, std::vector<int>, std::vector<int>, int>
-			createHSuperFinal(const Hamiltonian& ham) const;
+		EffectiveHamiltonian createHSuperFinal(const Hamiltonian& ham,
+                                               double lancTolerance, int skips)
+                                               const;
 					// HSuperFinal, mSFinal, qNumList, oneSiteQNums, targetQNum
 
 	private:

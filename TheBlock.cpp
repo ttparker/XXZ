@@ -77,18 +77,17 @@ TheBlock TheBlock::nextBlock(const Hamiltonian& ham, bool exactDiag,
 								// save expanded-block operators in new basis
 };
 
-std::tuple<MatrixXd, int, std::vector<int>, std::vector<int>, int>
-	TheBlock::createHSuperFinal(const Hamiltonian& ham) const
+EffectiveHamiltonian TheBlock::createHSuperFinal(const Hamiltonian& ham,
+                                                 double lancTolerance,
+                                                 int skips) const
 {
-	return std::make_tuple(MatrixXd(kp(hS, Id(d * m * d))
-								    + kp(ham.blockSiteJoin(rhoBasisH2), Id(m * d))
-								    + ham.siteSiteJoin(m, m)
-								    + kp(Id(m * d), ham.blockSiteJoin(rhoBasisH2))
-								    + kp(kp(Id(m * d), hS), Id_d)),
-								    m,
-								    qNumList,
-								    ham.oneSiteQNums,
-								    ham.targetQNum);
+	return EffectiveHamiltonian(qNumList, ham,
+                                MatrixXd(kp(hS, Id(d * m * d))
+								+ kp(ham.blockSiteJoin(rhoBasisH2), Id(m * d))
+								+ ham.siteSiteJoin(m, m)
+								+ kp(Id(m * d), ham.blockSiteJoin(rhoBasisH2))
+								+ kp(kp(Id(m * d), hS), Id_d)),
+                                lancTolerance, m, skips);
 };
 
 MatrixXd TheBlock::changeBasis(const MatrixXd& mat) const

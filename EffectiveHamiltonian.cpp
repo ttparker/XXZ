@@ -1,4 +1,3 @@
-#include <tuple>
 #include "d.h"
 #include "main.h"
 #include "Hamiltonian.h"
@@ -9,18 +8,18 @@
 
 using namespace Eigen;
 
-EffectiveHamiltonian::EffectiveHamiltonian(
-	const std::tuple<Eigen::MatrixXd, int, std::vector<int>,
-				 std::vector<int>, int>& hSuperFinal, double lancTolerance,
-                                           int skips)
-	: mSFinal(std::get<1>(hSuperFinal)), skips(skips)
+EffectiveHamiltonian::EffectiveHamiltonian(const std::vector<int>& qNumList,
+                                           const Hamiltonian& ham,
+                                           const MatrixXd& matFinal,
+                                           double lancTolerance,
+                                           int mSFinal, int skips)
+	: mSFinal(mSFinal), skips(skips)
 {
-	std::vector<int> hSprimeQNumList = 
-			vectorProductSum(std::get<2>(hSuperFinal), std::get<3>(hSuperFinal));
-	HamSolver hSuperSolver(std::get<0>(hSuperFinal),
+	std::vector<int> hSprimeQNumList = vectorProductSum(qNumList,
+                                                        ham.oneSiteQNums);
+	HamSolver hSuperSolver(matFinal,
 						   vectorProductSum(hSprimeQNumList, hSprimeQNumList),
-						   std::get<4>(hSuperFinal),
-                           lancTolerance);
+						   ham.targetQNum, lancTolerance);
 	psiGround = hSuperSolver.gState.first;
 	gsEnergy = hSuperSolver.gState.second;
 };

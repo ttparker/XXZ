@@ -14,7 +14,7 @@ using namespace Eigen;
 
 Hamiltonian::Hamiltonian(int lSys, const std::vector<double>& couplingConstants,
 						 int targetQNum)
-	: lSys(lSys), couplingConstants(couplingConstants), targetQNum(targetQNum)
+	: lSys(lSys), targetQNum(targetQNum), couplingConstants(couplingConstants)
 {
 	h2.resize(3);
 	sigmaplus << 0., 1.,
