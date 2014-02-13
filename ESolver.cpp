@@ -38,7 +38,9 @@ VectorXd Sector::filledOutEvec(VectorXd sectorEvec) const
 
 state Sector::solveForLowest() const
 {
-    state lowestEState = lanczos(sectorMat, lancTolerance);
+    VectorXd seed = VectorXd::Random(multiplicity);
+    seed /= seed.norm();
+    state lowestEState = lanczos(sectorMat, seed, lancTolerance);
     return state(filledOutEvec(lowestEState.first), lowestEState.second);
 };
 

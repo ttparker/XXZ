@@ -44,6 +44,7 @@ TheBlock TheBlock::nextBlock(const Hamiltonian& ham, bool exactDiag,
 		    tempRhoBasisH2.push_back(kp(Id(m), *op));
 		return TheBlock(md, hSprime, tempRhoBasisH2, hSprimeQNumList);
 	};
+    int compmd = compBlock.m * d;
 	HamSolver hSuperSolver = (infiniteStage ?		// find superblock eigenstates
 							  HamSolver(MatrixXd(kp(hSprime, Id(md))
 												 + ham.siteSiteJoin(m, m)
@@ -53,7 +54,7 @@ TheBlock TheBlock::nextBlock(const Hamiltonian& ham, bool exactDiag,
 										ham.targetQNum * (l + 2) / ham.lSys * 2,
                                         lancTolerance) :
 											// int automatically rounds down
-							  HamSolver(MatrixXd(kp(hSprime, Id(compBlock.m * d))
+							  HamSolver(MatrixXd(kp(hSprime, Id(compmd))
 												 + ham.siteSiteJoin(m, compBlock.m)
 												 + kp(Id(md),
 													  ham.blockSiteJoin(compBlock.rhoBasisH2))
@@ -65,7 +66,7 @@ TheBlock TheBlock::nextBlock(const Hamiltonian& ham, bool exactDiag,
 										ham.targetQNum,
                                         lancTolerance));
 	rmMatrixXd psiGround = hSuperSolver.gState.first;				// ground state
-    psiGround.resize(md, (infiniteStage ? m : compBlock.m) * d);
+    psiGround.resize(md, infiniteStage ? md : compmd);
 	DMSolver rhoSolver(psiGround * psiGround.adjoint(), hSprimeQNumList, mMax);
 											// find density matrix eigenstates
 	primeToRhoBasis = rhoSolver.highestEvecs;	// construct change-of-basis matrix

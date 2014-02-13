@@ -11,13 +11,14 @@ extern "C"
 
 using namespace Eigen;
 
-std::pair<VectorXd, double> lanczos(const MatrixXd& mat, double tolerance)
+std::pair<VectorXd, double> lanczos(const MatrixXd& mat, const VectorXd& seed,
+                                    double tolerance)
 {
     std::vector<double> a,
                         b;
     int n = mat.rows();
-    VectorXd x = VectorXd::Random(n);
-    MatrixXd basisVecs = x / x.norm();              // initial seed
+    VectorXd x = seed;
+    MatrixXd basisVecs = x;                         // initial seed
     x.noalias() = mat * basisVecs;
     a.push_back(basisVecs.col(0).dot(x));
     b.push_back(0.);
