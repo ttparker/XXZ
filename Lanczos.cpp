@@ -41,7 +41,7 @@ std::pair<VectorXd, double> lanczos(const MatrixXd& mat, const VectorXd& seed,
         NZC = 1;
     std::vector<int> ISUPPZ;
     ISUPPZ.reserve(2);
-    bool TRYRAC = false;
+    bool TRYRAC = true;
     double optLWORK;
     std::vector<double> WORK;
     int LWORK,
