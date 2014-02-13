@@ -11,19 +11,17 @@ extern "C"
 
 using namespace Eigen;
 
-std::pair<VectorXd, double> lanczos(const MatrixXd& mat, const VectorXd& seed,
-                                    double tolerance)
+double lanczos(const MatrixXd& mat, VectorXd& seed, double tolerance)
 {
     std::vector<double> a,
                         b;
     int n = mat.rows();
     VectorXd x = seed;
-    MatrixXd basisVecs = x;                         // initial seed
+    MatrixXd basisVecs = x;
     x.noalias() = mat * basisVecs;
     a.push_back(basisVecs.col(0).dot(x));
     b.push_back(0.);
-    VectorXd oldGS,
-             newGS = basisVecs;
+    VectorXd oldGS;
     int i = 0;                                      // iteration counter
     char JOBZ = 'V',                                // define dstemr arguments
          RANGE = 'I';
@@ -52,7 +50,7 @@ std::pair<VectorXd, double> lanczos(const MatrixXd& mat, const VectorXd& seed,
     do
     {
         i++;
-        oldGS = newGS;
+        oldGS = seed;
         
         // Lanczos stage 1: Lanczos iteration
         x -= a[i - 1] * basisVecs.col(i - 1);
@@ -84,13 +82,13 @@ std::pair<VectorXd, double> lanczos(const MatrixXd& mat, const VectorXd& seed,
         dstemr_(&JOBZ, &RANGE, &N, D.data(), E.data(), &VL, &VU, &IL, &IU, &M,
                 W.data(), Z.data(), &LDZ, &NZC, ISUPPZ.data(), &TRYRAC,
                 WORK.data(), &LWORK, IWORK.data(), &LIWORK, &INFO);
-        newGS = basisVecs * Z;
-    } while(std::min((newGS - oldGS).norm(), (newGS + oldGS).norm()) > tolerance
+        seed.noalias() = basisVecs * Z;
+    } while(std::min((seed - oldGS).norm(), (seed + oldGS).norm()) > tolerance
             && N <= n);
     if(N > n)
     {
         std::cerr << "Lanczos algorithm failed to converge." << std::endl;
         exit(EXIT_FAILURE);
     };
-    return std::pair<VectorXd, double>(newGS, W.front());
+    return W.front();
 };

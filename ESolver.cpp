@@ -36,12 +36,13 @@ VectorXd Sector::filledOutEvec(VectorXd sectorEvec) const
 	return longEvec;
 };
 
-state Sector::solveForLowest() const
+double Sector::solveForLowest(VectorXd& lowestEvec)
 {
     VectorXd seed = VectorXd::Random(multiplicity);
     seed /= seed.norm();
-    state lowestEState = lanczos(sectorMat, seed, lancTolerance);
-    return state(filledOutEvec(lowestEState.first), lowestEState.second);
+    double lowestEval = lanczos(sectorMat, seed, lancTolerance);
+    lowestEvec = filledOutEvec(seed);
+    return lowestEval;
 };
 
 void Sector::solveForAll()
@@ -59,7 +60,7 @@ HamSolver::HamSolver(const Eigen::MatrixXd& mat, const std::vector<int>& qNumLis
 {
 	Sector::fullMatrixSize = mat.rows();
 	Sector targetSector(qNumList, targetQNum, mat, lancTolerance);
-    gState = targetSector.solveForLowest();
+    lowestEval = targetSector.solveForLowest(lowestEvec);
 };
 
 DMSolver::DMSolver(const Eigen::MatrixXd& mat, const std::vector<int>& qNumList,

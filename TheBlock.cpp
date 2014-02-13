@@ -1,4 +1,3 @@
-#include <tuple>
 #include "d.h"
 #include "main.h"
 #include "Hamiltonian.h"
@@ -65,7 +64,7 @@ TheBlock TheBlock::nextBlock(const Hamiltonian& ham, bool exactDiag,
 																		  ham.oneSiteQNums)),
 										ham.targetQNum,
                                         lancTolerance));
-	rmMatrixXd psiGround = hSuperSolver.gState.first;				// ground state
+	rmMatrixXd psiGround = hSuperSolver.lowestEvec;				// ground state
     psiGround.resize(md, infiniteStage ? md : compmd);
 	DMSolver rhoSolver(psiGround * psiGround.adjoint(), hSprimeQNumList, mMax);
 											// find density matrix eigenstates

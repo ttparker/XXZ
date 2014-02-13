@@ -20,8 +20,8 @@ EffectiveHamiltonian::EffectiveHamiltonian(const std::vector<int>& qNumList,
 	HamSolver hSuperSolver(matFinal,
 						   vectorProductSum(hSprimeQNumList, hSprimeQNumList),
 						   ham.targetQNum, lancTolerance);
-	psiGround = hSuperSolver.gState.first;
-	gsEnergy = hSuperSolver.gState.second;
+	psiGround = hSuperSolver.lowestEvec;
+	gsEnergy = hSuperSolver.lowestEval;
 };
 
 double EffectiveHamiltonian::expValue(const opsVec& ops,
