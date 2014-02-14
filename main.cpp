@@ -25,7 +25,7 @@ int main()
 				// magnetization per site - product with lSys must be integer
 	int mMax = 16,								// max number of stored states
 		nSweeps = 2;						// number of sweeps to be performed
-    double lancTolerance = 1e-6;            // acceptable error of ground state
+    double groundStateErrorTolerance = 1e-6;
 
 	bool calcOneSiteExpValues = true, // calculate single-site expectation values?
 		 calcTwoSiteExpValues = true; // calculate two-site expectation values?
@@ -68,7 +68,8 @@ int main()
         std::cout << "Performing iDMRG..." << std::endl;
         for(int site = 0; site < skips; site++)
             blocks[site + 1] = blocks[site].nextBlock(ham);       // initial ED
-        Sector::lancTolerance = lancTolerance;
+        Sector::lancTolerance = groundStateErrorTolerance
+                                * groundStateErrorTolerance / 2;
         for(int site = skips, end = lSFinal - 1; site < end; site++)
             blocks[site + 1] = blocks[site].nextBlock(ham, false, true, site);
         if(nSweeps != 0)
