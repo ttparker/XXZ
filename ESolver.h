@@ -1,20 +1,22 @@
 class Sector
 {
 	public:
-		Sector() {};
-
+        static double lancTolerance;
+        
+        Sector() {};
+        
 	private:
 		std::vector<int> positions;			// which rows and columns
 											// of matrix are in sector
 		int multiplicity;					// size of this symmetry sector
         Eigen::MatrixXd sectorMat;          // sector operator
         static int fullMatrixSize;
-        double lancTolerance;
         Eigen::SelfAdjointEigenSolver<Eigen::MatrixXd> solver; // DM eigensystem
 		int sectorColumnCounter;			// tracks which sector eigenvector
 											// to fill into a matrix eigenvector
+        
 		Sector(const std::vector<int>& qNumList, int qNum,
-			   const Eigen::MatrixXd& mat, double lancTolerance = 0.);
+			   const Eigen::MatrixXd& mat);
 		Eigen::VectorXd filledOutEvec(Eigen::VectorXd sectorEvec) const;
         double solveForLowest(Eigen::VectorXd& lowestEvec);
         void solveForAll();
@@ -31,7 +33,7 @@ class HamSolver
         double lowestEval;
 
 		HamSolver(const Eigen::MatrixXd& mat, const std::vector<int>& qNumList,
-				  int targetQNum, double lancTolerance);
+				  int targetQNum);
 	
 	friend class TheBlock;
 	friend class EffectiveHamiltonian;

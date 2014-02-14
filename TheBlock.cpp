@@ -9,7 +9,6 @@
 using namespace Eigen;
 
 int TheBlock::mMax;
-double TheBlock::lancTolerance;
 
 TheBlock::TheBlock(int m, const MatrixXd& hS,
 				   const std::vector<MatrixXd>& rhoBasisH2,
@@ -50,8 +49,7 @@ TheBlock TheBlock::nextBlock(const Hamiltonian& ham, bool exactDiag,
 												 + kp(Id(md), hSprime)),
 										vectorProductSum(hSprimeQNumList,
 														hSprimeQNumList),
-										ham.targetQNum * (l + 2) / ham.lSys * 2,
-                                        lancTolerance) :
+										ham.targetQNum * (l + 2) / ham.lSys * 2) :
 											// int automatically rounds down
 							  HamSolver(MatrixXd(kp(hSprime, Id(compmd))
 												 + ham.siteSiteJoin(m, compBlock.m)
@@ -62,8 +60,7 @@ TheBlock TheBlock::nextBlock(const Hamiltonian& ham, bool exactDiag,
 										vectorProductSum(hSprimeQNumList,
 														 vectorProductSum(compBlock.qNumList,
 																		  ham.oneSiteQNums)),
-										ham.targetQNum,
-                                        lancTolerance));
+										ham.targetQNum));
 	rmMatrixXd psiGround = hSuperSolver.lowestEvec;				// ground state
     psiGround.resize(md, infiniteStage ? md : compmd);
 	DMSolver rhoSolver(psiGround * psiGround.adjoint(), hSprimeQNumList, mMax);
@@ -78,7 +75,6 @@ TheBlock TheBlock::nextBlock(const Hamiltonian& ham, bool exactDiag,
 };
 
 EffectiveHamiltonian TheBlock::createHSuperFinal(const Hamiltonian& ham,
-                                                 double lancTolerance,
                                                  int skips) const
 {
 	return EffectiveHamiltonian(qNumList, ham,
@@ -87,7 +83,7 @@ EffectiveHamiltonian TheBlock::createHSuperFinal(const Hamiltonian& ham,
 								+ ham.siteSiteJoin(m, m)
 								+ kp(Id(m * d), ham.blockSiteJoin(rhoBasisH2))
 								+ kp(kp(Id(m * d), hS), Id_d)),
-                                lancTolerance, m, skips);
+                                m, skips);
 };
 
 MatrixXd TheBlock::changeBasis(const MatrixXd& mat) const

@@ -11,7 +11,6 @@ using namespace Eigen;
 EffectiveHamiltonian::EffectiveHamiltonian(const std::vector<int>& qNumList,
                                            const Hamiltonian& ham,
                                            const MatrixXd& matFinal,
-                                           double lancTolerance,
                                            int mSFinal, int skips)
 	: mSFinal(mSFinal), skips(skips)
 {
@@ -19,7 +18,7 @@ EffectiveHamiltonian::EffectiveHamiltonian(const std::vector<int>& qNumList,
                                                         ham.oneSiteQNums);
 	HamSolver hSuperSolver(matFinal,
 						   vectorProductSum(hSprimeQNumList, hSprimeQNumList),
-						   ham.targetQNum, lancTolerance);
+						   ham.targetQNum);
 	psiGround = hSuperSolver.lowestEvec;
 	gsEnergy = hSuperSolver.lowestEval;
 };

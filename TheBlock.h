@@ -6,8 +6,6 @@ class EffectiveHamiltonian;
 class TheBlock
 {
 	public:
-        static double lancTolerance;
-        
         TheBlock(int m = 0,
 				 const Eigen::MatrixXd& hS = Eigen::MatrixXd(),
 				 const std::vector<Eigen::MatrixXd>& rhoBasisH2 
@@ -20,8 +18,7 @@ class TheBlock
                                                    // performs each DMRG step -
 				// the last argument is the environment block in the fDMRG stage
 		EffectiveHamiltonian createHSuperFinal(const Hamiltonian& ham,
-                                               double lancTolerance, int skips)
-                                               const;
+                                               int skips) const;
 					// HSuperFinal, mSFinal, qNumList, oneSiteQNums, targetQNum
 
 	private:

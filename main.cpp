@@ -68,7 +68,7 @@ int main()
         std::cout << "Performing iDMRG..." << std::endl;
         for(int site = 0; site < skips; site++)
             blocks[site + 1] = blocks[site].nextBlock(ham);       // initial ED
-        TheBlock::lancTolerance = lancTolerance;
+        Sector::lancTolerance = lancTolerance;
         for(int site = skips, end = lSFinal - 1; site < end; site++)
             blocks[site + 1] = blocks[site].nextBlock(ham, false, true, site);
         if(nSweeps != 0)
@@ -85,7 +85,7 @@ int main()
 		};
 
 		EffectiveHamiltonian hSuperFinal = blocks[lSFinal - 1]
-                                 .createHSuperFinal(ham, lancTolerance, skips);
+                                 .createHSuperFinal(ham, skips);
 											// calculate ground-state energy
 		fileout << "Ground state energy density = "
 				<< hSuperFinal.gsEnergy / ham.lSys << std::endl	<< std::endl;

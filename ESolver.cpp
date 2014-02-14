@@ -9,12 +9,12 @@
 
 using namespace Eigen;
 
+double Sector::lancTolerance;
 int Sector::fullMatrixSize;
 
-Sector::Sector(const std::vector<int>& qNumList, int qNum, const MatrixXd& mat,
-               double lancTolerance)
+Sector::Sector(const std::vector<int>& qNumList, int qNum, const MatrixXd& mat)
 	: multiplicity(std::count(qNumList.begin(), qNumList.end(), qNum)),
-	  sectorMat(MatrixXd(multiplicity, multiplicity)), lancTolerance(lancTolerance),
+	  sectorMat(MatrixXd(multiplicity, multiplicity)),
 	  sectorColumnCounter(multiplicity)
 {
 	positions.reserve(multiplicity);
@@ -56,10 +56,10 @@ Eigen::VectorXd Sector::nextHighestEvec()
 };
 
 HamSolver::HamSolver(const Eigen::MatrixXd& mat, const std::vector<int>& qNumList,
-					 int targetQNum, double lancTolerance)
+					 int targetQNum)
 {
 	Sector::fullMatrixSize = mat.rows();
-	Sector targetSector(qNumList, targetQNum, mat, lancTolerance);
+	Sector targetSector(qNumList, targetQNum, mat);
     lowestEval = targetSector.solveForLowest(lowestEvec);
 };
 

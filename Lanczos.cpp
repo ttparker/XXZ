@@ -11,7 +11,7 @@ extern "C"
 
 using namespace Eigen;
 
-double lanczos(const MatrixXd& mat, VectorXd& seed, double tolerance)
+double lanczos(const MatrixXd& mat, VectorXd& seed, double lancTolerance)
 {
     std::vector<double> a,
                         b;
@@ -83,7 +83,7 @@ double lanczos(const MatrixXd& mat, VectorXd& seed, double tolerance)
                 W.data(), Z.data(), &LDZ, &NZC, ISUPPZ.data(), &TRYRAC,
                 WORK.data(), &LWORK, IWORK.data(), &LIWORK, &INFO);
         seed.noalias() = basisVecs * Z;
-    } while(std::min((seed - oldGS).norm(), (seed + oldGS).norm()) > tolerance
+    } while(std::min((seed - oldGS).norm(), (seed + oldGS).norm()) > lancTolerance
             && N <= n);
     if(N > n)
     {

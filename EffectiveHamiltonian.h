@@ -13,7 +13,7 @@ class EffectiveHamiltonian
         EffectiveHamiltonian(const std::vector<int>& qNumList,
                              const Hamiltonian& ham,
                              const Eigen::MatrixXd& matFinal,
-                             double lancTolerance, int mSFinal, int skips);
+                             int mSFinal, int skips);
         double expValue(const opsVec& ops, std::vector<TheBlock>& blocks);
 		// calculates exectation value of a combination of single-site operators
 
