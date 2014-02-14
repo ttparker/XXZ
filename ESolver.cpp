@@ -39,7 +39,7 @@ double Sector::solveForLowest(VectorXd& lowestEvec)
 {
     VectorXd seed = VectorXd::Random(multiplicity);
     seed /= seed.norm();
-    double lowestEval = lanczos(sectorMat, seed, lancTolerance);
+    double lowestEval = lanczos(sectorMat, seed);
     lowestEvec = filledOutEvec(seed);
     return lowestEval;
 };

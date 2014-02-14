@@ -13,7 +13,7 @@ extern "C"
 
 using namespace Eigen;
 
-double Sector::lanczos(const MatrixXd& mat, VectorXd& seed, double lancTolerance)
+double Sector::lanczos(const MatrixXd& mat, VectorXd& seed)
 {
     const int minIters = 4,
               maxIters = std::min(mat.rows(), 100);
