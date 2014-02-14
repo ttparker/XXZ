@@ -1,5 +1,6 @@
 #include "d.h"
 #include "main.h"
+#include "ESolver.h"
 
 extern "C"
 {
@@ -11,7 +12,7 @@ extern "C"
 
 using namespace Eigen;
 
-double lanczos(const MatrixXd& mat, VectorXd& seed, double lancTolerance)
+double Sector::lanczos(const MatrixXd& mat, VectorXd& seed, double lancTolerance)
 {
     const int minIters = 4,
               maxIters = std::min(mat.rows(), 100);

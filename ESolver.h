@@ -18,7 +18,9 @@ class Sector
 		Sector(const std::vector<int>& qNumList, int qNum,
 			   const Eigen::MatrixXd& mat);
 		Eigen::VectorXd filledOutEvec(Eigen::VectorXd sectorEvec) const;
-        double solveForLowest(Eigen::VectorXd& lowestEvec);
+        double solveForLowest(Eigen::VectorXd& lowestEvec),
+               lanczos(const Eigen::MatrixXd& mat, Eigen::VectorXd& seed,
+                       double lancTolerance); // changes input seed to ground eigenvector
         void solveForAll();
         Eigen::VectorXd nextHighestEvec();
 

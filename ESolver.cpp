@@ -5,7 +5,6 @@
 #include "Hamiltonian.h"
 #include "TheBlock.h"
 #include "ESolver.h"
-#include "Lanczos.h"
 
 using namespace Eigen;
 

@@ -13,11 +13,11 @@ $(PROG): $(OBJS)
 
 EffectiveHamiltonian.o: $(COMMONHS) TheBlock.h EffectiveHamiltonian.h FreeFunctions.h ESolver.h
 
-ESolver.o: $(COMMONHS) TheBlock.h ESolver.h Lanczos.h
+ESolver.o: $(COMMONHS) TheBlock.h ESolver.h
 
 FreeFunctions.o: $(COMMONHS) TheBlock.h EffectiveHamiltonian.h
 
-Lanczos.o: d.h main.h
+Lanczos.o: d.h main.h ESolver.h
 
 main.o: $(COMMONHS) TheBlock.h EffectiveHamiltonian.h ESolver.h FreeFunctions.h
 
