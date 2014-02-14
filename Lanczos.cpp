@@ -13,13 +13,14 @@ using namespace Eigen;
 
 double lanczos(const MatrixXd& mat, VectorXd& seed, double lancTolerance)
 {
+    const int minIters = 4,
+              maxIters = std::min(mat.rows(), 100);
     std::vector<double> a,
                         b;
-    int n = mat.rows();
     VectorXd x = seed;
     MatrixXd basisVecs = x;
     x.noalias() = mat * basisVecs;
-    a.push_back(basisVecs.col(0).dot(x));
+    a.push_back(seed.dot(x));
     b.push_back(0.);
     VectorXd oldGS;
     int i = 0;                                      // iteration counter
@@ -83,11 +84,14 @@ double lanczos(const MatrixXd& mat, VectorXd& seed, double lancTolerance)
                 W.data(), Z.data(), &LDZ, &NZC, ISUPPZ.data(), &TRYRAC,
                 WORK.data(), &LWORK, IWORK.data(), &LIWORK, &INFO);
         seed.noalias() = basisVecs * Z;
-    } while(std::min((seed - oldGS).norm(), (seed + oldGS).norm()) > lancTolerance
-            && N <= n);
-    if(N > n)
+        seed /= seed.norm();
+    } while(N < minIters ||
+            (std::min((seed - oldGS).norm(), (seed + oldGS).norm()) > lancTolerance
+             && N < maxIters));
+    if(N == maxIters)
     {
-        std::cerr << "Lanczos algorithm failed to converge." << std::endl;
+        std::cerr << "Lanczos algorithm failed to converge after " << N
+                  << " iterations." << std::endl;
         exit(EXIT_FAILURE);
     };
     return W.front();
