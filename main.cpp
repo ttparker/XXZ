@@ -88,7 +88,7 @@ int main()
                                                           blocks[ham.lSys - 5 - site]);
             std::cout << "Sweep " << i << " complete." << std::endl;
         };
-    
+        
 		EffectiveHamiltonian hSuperFinal = blocks[lSFinal - 1]
                                  .createHSuperFinal(ham, skips);
 											// calculate ground-state energy

@@ -11,7 +11,6 @@ class Sector
 		int multiplicity;					// size of this symmetry sector
         Eigen::MatrixXd sectorMat;          // sector operator
         static int fullMatrixSize;
-        Eigen::VectorXd seed;
         Eigen::SelfAdjointEigenSolver<Eigen::MatrixXd> solver; // DM eigensystem
 		int sectorColumnCounter;			// tracks which sector eigenvector
 											// to fill into a matrix eigenvector
