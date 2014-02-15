@@ -16,9 +16,10 @@ EffectiveHamiltonian::EffectiveHamiltonian(const std::vector<int>& qNumList,
 {
 	std::vector<int> hSprimeQNumList = vectorProductSum(qNumList,
                                                         ham.oneSiteQNums);
+    VectorXd seed = TheBlock::psiGround;
 	HamSolver hSuperSolver(matFinal,
 						   vectorProductSum(hSprimeQNumList, hSprimeQNumList),
-						   ham.targetQNum);
+						   ham.targetQNum, seed);
 	psiGround = hSuperSolver.lowestEvec;
 	gsEnergy = hSuperSolver.lowestEval;
 };

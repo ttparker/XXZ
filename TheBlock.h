@@ -14,10 +14,11 @@ class TheBlock
 		TheBlock(const Hamiltonian& ham, int mMaxIn);
         TheBlock nextBlock(const Hamiltonian& ham, bool exactDiag = true,
                            bool infiniteStage = true, int l = 0,
-						   const TheBlock& compBlock = TheBlock());
-                                                   // performs each DMRG step -
-				// the last argument is the environment block in the fDMRG stage
-		EffectiveHamiltonian createHSuperFinal(const Hamiltonian& ham,
+						   const TheBlock& compBlock = TheBlock(),
+                           const TheBlock& beforeCompBlock = TheBlock());
+                                                   // performs each DMRG step
+        void reflectPredictedPsi();            // when you reach edge of system
+        EffectiveHamiltonian createHSuperFinal(const Hamiltonian& ham,
                                                int skips) const;
 					// HSuperFinal, mSFinal, qNumList, oneSiteQNums, targetQNum
 
@@ -26,7 +27,10 @@ class TheBlock
 		std::vector<Eigen::MatrixXd> rhoBasisH2;
 									// density-matrix-basis coupling operators
 		int m;								// number of states stored in block
-		std::vector<int> qNumList;			// tracks the conserved quantum
+		static rmMatrixXd psiGround;
+        static bool firstfDMRGStep;         // slight abuse of nomenclature -
+                                            // true during iDMRG as well
+        std::vector<int> qNumList;			// tracks the conserved quantum
 											// number of each row/column of hS
 		static int mMax;				// max size of effective Hamiltonian
 		Eigen::MatrixXd primeToRhoBasis;			// change-of-basis matrix

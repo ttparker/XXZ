@@ -74,17 +74,21 @@ int main()
             blocks[site + 1] = blocks[site].nextBlock(ham, false, true, site);
         if(nSweeps != 0)
             std::cout << "Performing fDMRG..." << std::endl;
-		for(int i = 1; i <= nSweeps; i++)			// perform the fDMRG sweeps
-		{
+        for(int i = 1; i <= nSweeps; i++)           // perform the fDMRG sweeps
+        {
             for(int site = lSFinal - 1, end = ham.lSys - 4 - skips; site < end; site++)
                 blocks[site + 1] = blocks[site].nextBlock(ham, false, false, site,
-                                                          blocks[ham.lSys - 4 - site]);
+                                                          blocks[ham.lSys - 4 - site],
+                                                          blocks[ham.lSys - 5 - site]);
+            blocks[skips].reflectPredictedPsi();
+                               // reflect the system to reverse sweep direction
             for(int site = skips, end = lSFinal - 1; site < end; site++)
                 blocks[site + 1] = blocks[site].nextBlock(ham, false, false, site,
-                                                          blocks[ham.lSys - 4 - site]);
-			std::cout << "Sweep " << i << " complete." << std::endl;
-		};
-
+                                                          blocks[ham.lSys - 4 - site],
+                                                          blocks[ham.lSys - 5 - site]);
+            std::cout << "Sweep " << i << " complete." << std::endl;
+        };
+    
 		EffectiveHamiltonian hSuperFinal = blocks[lSFinal - 1]
                                  .createHSuperFinal(ham, skips);
 											// calculate ground-state energy

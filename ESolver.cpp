@@ -35,12 +35,14 @@ VectorXd Sector::filledOutEvec(VectorXd sectorEvec) const
 	return longEvec;
 };
 
-double Sector::solveForLowest(VectorXd& lowestEvec)
+double Sector::solveForLowest(VectorXd& bigSeed)
 {
-    VectorXd seed = VectorXd::Random(multiplicity);
-    seed /= seed.norm();
-    double lowestEval = lanczos(sectorMat, seed);
-    lowestEvec = filledOutEvec(seed);
+    VectorXd littleSeed(multiplicity);
+    for(int i = 0; i < multiplicity; i++)
+        littleSeed(i) = bigSeed(positions[i]);
+    littleSeed /= littleSeed.norm();
+    double lowestEval = lanczos(sectorMat, littleSeed);
+    bigSeed = filledOutEvec(littleSeed);
     return lowestEval;
 };
 
@@ -54,8 +56,9 @@ Eigen::VectorXd Sector::nextHighestEvec()
     return filledOutEvec(solver.eigenvectors().col(--sectorColumnCounter));
 };
 
-HamSolver::HamSolver(const Eigen::MatrixXd& mat, const std::vector<int>& qNumList,
-					 int targetQNum)
+HamSolver::HamSolver(const MatrixXd& mat, const std::vector<int>& qNumList,
+					 int targetQNum, VectorXd& bigSeed)
+	: lowestEvec(bigSeed)
 {
 	Sector::fullMatrixSize = mat.rows();
 	Sector targetSector(qNumList, targetQNum, mat);

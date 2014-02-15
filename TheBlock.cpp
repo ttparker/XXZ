@@ -8,6 +8,8 @@
 
 using namespace Eigen;
 
+rmMatrixXd TheBlock::psiGround;
+bool TheBlock::firstfDMRGStep;
 int TheBlock::mMax;
 
 TheBlock::TheBlock(int m, const MatrixXd& hS,
@@ -18,6 +20,7 @@ TheBlock::TheBlock(int m, const MatrixXd& hS,
 TheBlock::TheBlock(const Hamiltonian& ham, int mMaxIn)
 	: hS(MatrixDd::Zero()), m(d), qNumList(ham.oneSiteQNums)
 {
+    firstfDMRGStep = true;
 	mMax = mMaxIn;
 	rhoBasisH2.assign(ham.h2.begin(),
 					  ham.h2.begin() + ham.couplingConstants.size());
@@ -25,7 +28,8 @@ TheBlock::TheBlock(const Hamiltonian& ham, int mMaxIn)
 
 TheBlock TheBlock::nextBlock(const Hamiltonian& ham, bool exactDiag,
                              bool infiniteStage, int l,
-                             const TheBlock& compBlock)
+                             const TheBlock& compBlock,
+                             const TheBlock& beforeCompBlock)
 {
 	std::vector<int> hSprimeQNumList	// add in quantum numbers of new site
 		= vectorProductSum(qNumList, ham.oneSiteQNums);
@@ -43,14 +47,28 @@ TheBlock TheBlock::nextBlock(const Hamiltonian& ham, bool exactDiag,
 		return TheBlock(md, hSprime, tempRhoBasisH2, hSprimeQNumList);
 	};
     int compmd = compBlock.m * d;
+    VectorXd seed;
+    if(infiniteStage)
+    {
+        seed = VectorXd::Random(md * md);
+        seed /= seed.norm();
+    }
+    else if(firstfDMRGStep)
+    {
+        seed = VectorXd::Random(md * compmd);
+        seed /= seed.norm();
+        firstfDMRGStep = false;
+    }
+    else
+        seed = psiGround;
 	HamSolver hSuperSolver = (infiniteStage ?		// find superblock eigenstates
 							  HamSolver(MatrixXd(kp(hSprime, Id(md))
 												 + ham.siteSiteJoin(m, m)
 												 + kp(Id(md), hSprime)),
 										vectorProductSum(hSprimeQNumList,
 														hSprimeQNumList),
-										ham.targetQNum * (l + 2) / ham.lSys * 2) :
-											// int automatically rounds down
+										ham.targetQNum * (l + 2) / ham.lSys * 2,
+                                        seed) :	// int automatically rounds down
 							  HamSolver(MatrixXd(kp(hSprime, Id(compmd))
 												 + ham.siteSiteJoin(m, compBlock.m)
 												 + kp(Id(md),
@@ -60,8 +78,8 @@ TheBlock TheBlock::nextBlock(const Hamiltonian& ham, bool exactDiag,
 										vectorProductSum(hSprimeQNumList,
 														 vectorProductSum(compBlock.qNumList,
 																		  ham.oneSiteQNums)),
-										ham.targetQNum));
-	rmMatrixXd psiGround = hSuperSolver.lowestEvec;				// ground state
+										ham.targetQNum, seed));
+	psiGround = hSuperSolver.lowestEvec;				// ground state
     psiGround.resize(md, infiniteStage ? md : compmd);
 	DMSolver rhoSolver(psiGround * psiGround.adjoint(), hSprimeQNumList, mMax);
 											// find density matrix eigenstates
@@ -69,9 +87,34 @@ TheBlock TheBlock::nextBlock(const Hamiltonian& ham, bool exactDiag,
 	for(auto op = ham.h2.begin(), end = ham.h2.begin() + indepCouplingOperators;
         op != end; op++)
 		tempRhoBasisH2.push_back(changeBasis(kp(Id(m), *op)));
+    if(!infiniteStage)     // modify psiGround to predict the next ground state
+    {
+        for(int sPrimeIndex = 0; sPrimeIndex < md; sPrimeIndex++)
+                    // transpose the environment block and right-hand free site
+        {
+            rmMatrixXd ePrime = psiGround.row(sPrimeIndex);
+            ePrime.resize(compBlock.m, d);
+            ePrime.transposeInPlace();
+            ePrime.resize(1, compmd);
+            psiGround.row(sPrimeIndex) = ePrime;
+        };
+        psiGround = primeToRhoBasis.adjoint() * psiGround; 
+                                      // change the expanded system block basis
+        psiGround.resize(mMax * d, compBlock.m);
+        psiGround *= beforeCompBlock.primeToRhoBasis.transpose();
+                                          // change the environment block basis
+        psiGround.resize(mMax * d * beforeCompBlock.primeToRhoBasis.rows(), 1);
+    };
 	return TheBlock(mMax, changeBasis(hSprime), tempRhoBasisH2,
 					rhoSolver.highestEvecQNums);
 								// save expanded-block operators in new basis
+};
+
+void TheBlock::reflectPredictedPsi()
+{
+    psiGround.resize(mMax * d, m * d);
+    psiGround.transposeInPlace();
+    psiGround.resize(mMax * d * m * d, 1);
 };
 
 EffectiveHamiltonian TheBlock::createHSuperFinal(const Hamiltonian& ham,

@@ -11,6 +11,7 @@ class Sector
 		int multiplicity;					// size of this symmetry sector
         Eigen::MatrixXd sectorMat;          // sector operator
         static int fullMatrixSize;
+        Eigen::VectorXd seed;
         Eigen::SelfAdjointEigenSolver<Eigen::MatrixXd> solver; // DM eigensystem
 		int sectorColumnCounter;			// tracks which sector eigenvector
 											// to fill into a matrix eigenvector
@@ -35,7 +36,7 @@ class HamSolver
         double lowestEval;
 
 		HamSolver(const Eigen::MatrixXd& mat, const std::vector<int>& qNumList,
-				  int targetQNum);
+				  int targetQNum, Eigen::VectorXd& bigSeed);
 	
 	friend class TheBlock;
 	friend class EffectiveHamiltonian;
