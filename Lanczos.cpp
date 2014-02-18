@@ -16,7 +16,7 @@ using namespace Eigen;
 double Sector::lanczos(const MatrixXd& mat, VectorXd& seed)
 {
     const int minIters = 4,
-              maxIters = std::min(mat.rows(), 100);
+              maxIters = std::min(int(mat.rows()), 100);
     std::vector<double> a,
                         b;
     VectorXd x = seed;
