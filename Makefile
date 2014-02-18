@@ -3,7 +3,8 @@ CXX = g++
 CXXFLAGS = -Wall -Wextra -O3 -std=c++11 -march=native -I ../Eigen_3.2.0 $(DEBUG)
 LIBS = -llapack
 OBJS = EffectiveHamiltonian.o ESolver.o FreeFunctions.o Lanczos.o main.o modifyHamParams.o TheBlock.o XXZ.o
-COMMONHS = d.h main.h Hamiltonian.h
+COMMONHS1 = d.h main.h
+COMMONHS2 = $(COMMONHS1) Hamiltonian.h TheBlock.h EffectiveHamiltonian.h FreeFunctions.h ESolver.h
 light = rm -f *.cpp~ *.h~ Makefile~
 git = rm -f $(PROG) ./Output/*
 deep = $(git) *.o
@@ -11,19 +12,19 @@ deep = $(git) *.o
 $(PROG): $(OBJS)
 	$(CXX) $(CXXFLAGS) $(LIBS) -o $(PROG) $(OBJS)
 
-EffectiveHamiltonian.o: $(COMMONHS) TheBlock.h EffectiveHamiltonian.h FreeFunctions.h ESolver.h
+EffectiveHamiltonian.o: $(COMMONHS2)
 
-ESolver.o: $(COMMONHS) TheBlock.h ESolver.h
+ESolver.o: $(COMMONHS1) Hamiltonian.h TheBlock.h ESolver.h
 
-FreeFunctions.o: $(COMMONHS) TheBlock.h EffectiveHamiltonian.h
+FreeFunctions.o: $(COMMONHS1) Hamiltonian.h TheBlock.h EffectiveHamiltonian.h
 
-Lanczos.o: d.h main.h ESolver.h
+Lanczos.o: $(COMMONHS1) ESolver.h
 
-main.o: $(COMMONHS) TheBlock.h EffectiveHamiltonian.h ESolver.h FreeFunctions.h
+main.o: $(COMMONHS2)
 
-TheBlock.o: $(COMMONHS) TheBlock.h EffectiveHamiltonian.h FreeFunctions.h ESolver.h
+TheBlock.o: $(COMMONHS2)
 
-XXZ.o: $(COMMONHS) 
+XXZ.o: $(COMMONHS1) Hamiltonian.h
 
 lightclean:
 	$(light)

@@ -1,5 +1,4 @@
 #include <cmath>
-#include "d.h"
 #include "main.h"
 #include "ESolver.h"
 

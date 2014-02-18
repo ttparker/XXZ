@@ -1,8 +1,3 @@
-#include "d.h"
-#include "main.h"
-#include "Hamiltonian.h"
-#include "TheBlock.h"
-#include "EffectiveHamiltonian.h"
 #include "FreeFunctions.h"
 #include "ESolver.h"
 

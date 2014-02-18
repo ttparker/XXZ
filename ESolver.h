@@ -1,3 +1,6 @@
+#ifndef ESOLVER_H
+#define ESOLVER_H
+
 class Sector
 {
 	public:
@@ -52,3 +55,5 @@ class DMSolver
 
 	friend class TheBlock;
 };
+
+#endif
