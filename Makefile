@@ -39,4 +39,4 @@ clean:
 	$(deep)
 
 upload:
-	scp *.cpp *.h Makefile knot.cnsi.ucsb.edu:~/XXZ
+	scp *.cpp *.h Makefile knot.cnsi.ucsb.edu:~/$(DEST)
