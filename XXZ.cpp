@@ -10,9 +10,7 @@
 
 using namespace Eigen;
 
-Hamiltonian::Hamiltonian(int lSys, const std::vector<double>& couplingConstants,
-						 int targetQNum)
-	: lSys(lSys), targetQNum(targetQNum), couplingConstants(couplingConstants)
+Hamiltonian::Hamiltonian()
 {
 	h2.resize(3);
 	sigmaplus << 0., 1.,
@@ -24,6 +22,15 @@ Hamiltonian::Hamiltonian(int lSys, const std::vector<double>& couplingConstants,
 	oneSiteQNums.reserve(2);
 	oneSiteQNums.push_back(1);
 	oneSiteQNums.push_back(-1);
+};
+
+void Hamiltonian::setParams(int lSysIn,
+                            const std::vector<double>& couplingConstantsIn,
+                            int targetQNumIn)
+{
+    lSys = lSysIn;
+    couplingConstants = couplingConstantsIn;
+    targetQNum = targetQNumIn;
 };
 
 MatrixXd Hamiltonian::blockSiteJoin(const std::vector<MatrixXd>& rhoBasisH2) const

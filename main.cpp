@@ -12,10 +12,10 @@ int main()
 	// **************** begin modifiable parameters
 	const int numberOfTrials = 1;
 	int lSys = 20;								// system length - must be even
-	std::vector<double> couplingConsts;
-	couplingConsts.reserve(2);
-	couplingConsts.push_back(5.);				// J_{xy}
-	couplingConsts.push_back(2.);				// J_z
+	std::vector<double> couplingConstants;
+	couplingConstants.reserve(2);
+	couplingConstants.push_back(5.);				// J_{xy}
+	couplingConstants.push_back(2.);				// J_z
 	int targetQNum = lSys * 1 / 5;				// targeted fractional average
 				// magnetization per site - product with lSys must be integer
 	int mMax = 16,								// max number of stored states
@@ -40,8 +40,7 @@ int main()
 	secondTwoSiteOp = sigmax;
 	// **************** end modifiable parameters
 
-	Hamiltonian ham(lSys, couplingConsts, targetQNum);
-										// initialize the system's Hamiltonian
+	Hamiltonian ham;		    		// initialize the system's Hamiltonian
 	std::ofstream fileout;
 	fileout.open("Output/Output", std::ios::out);
 	if (!fileout)
@@ -51,9 +50,9 @@ int main()
 	};
 	for(int trial = 0; trial < numberOfTrials; trial++)
 	{
+        ham.setParams(lSys, couplingConstants, targetQNum);
 		std::cout << "Trial " << trial << ":" <<std::endl;
 		fileout << "Trial " << trial << ":" <<std::endl;
-		modifyHamParams(trial);
         int skips = 0;
         for(int runningKeptStates = d * d; runningKeptStates <= mMax; skips++)
             runningKeptStates *= d; // find how many edge sites can be skipped

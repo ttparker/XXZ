@@ -1,1 +1,0 @@
-void modifyHamParams(int trial) {};
