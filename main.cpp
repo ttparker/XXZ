@@ -68,7 +68,7 @@ int main()
         clock_t startTrial = clock();
         std::cout << "Trial " << trial << ":" <<std::endl;
         std::ofstream fileout("Output/Trial_" + std::to_string(trial));
-        fileout << "Trial " << trial << ":" <<std::endl;
+        fileout << "Trial " << trial << ":\n" <<std::endl;
         
         // read in parameters that vary over trials:
         int lSys;                           // system length
@@ -86,6 +86,13 @@ int main()
         if(rangeOfObservables == -1)
             rangeOfObservables = lSys;
         
+        fileout << "System length: " << lSys << "\nCoupling constants:";
+        for(int i = 0; i < nCouplingConstants; i++)
+            fileout << " " << couplingConstants[i];
+         fileout << "\nTargeted quantum number: " << targetQNum
+                 << "\nLanczos tolerance: " << groundStateErrorTolerance
+                 << "\nBond dimension: " << mMax << "\nNumber of sweeps: "
+                 << nSweeps << std::endl << std::endl;
         ham.setParams(lSys, couplingConstants, targetQNum);
         int skips = 0;
         for(int runningKeptStates = d * d; runningKeptStates <= mMax; skips++)
@@ -135,15 +142,16 @@ int main()
         };
         std::cout << std::endl;
         clock_t stopTrial = clock();
-        fileout << "Elapsed time (s): "
-                << (double)(stopTrial - startTrial)/CLOCKS_PER_SEC << std::endl;
+        fileout << "Elapsed time: "
+                << double(stopTrial - startTrial)/CLOCKS_PER_SEC << " s"
+                << std::endl;
         fileout.close();
     };
     filein.close();
     
     clock_t stop = clock();
-    std::cout << "Done. Elapsed time (s): " << (double)(stop - start)/CLOCKS_PER_SEC
-            << std::endl;
+    std::cout << "Done. Elapsed time: " << double(stop - start)/CLOCKS_PER_SEC
+              << " s" << std::endl;
 
     return 0;
 }
