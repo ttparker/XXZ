@@ -54,17 +54,17 @@ int main()
 		std::cout << "Trial " << trial << ":" <<std::endl;
 		fileout << "Trial " << trial << ":" <<std::endl;
 		modifyHamParams(trial);
-		int lSFinal = ham.lSys / 2 - 1;		// final length of the system block
-		std::vector<TheBlock> blocks(ham.lSys - 3);		// initialize system
-		blocks[0] = TheBlock(ham, mMax);	// initialize the one-site block
         int skips = 0;
         for(int runningKeptStates = d * d; runningKeptStates <= mMax; skips++)
             runningKeptStates *= d; // find how many edge sites can be skipped
+		std::vector<TheBlock> blocks(ham.lSys - 3 - skips);	// initialize system
+		blocks[0] = TheBlock(ham, mMax);	// initialize the one-site block
         std::cout << "Performing iDMRG..." << std::endl;
         for(int site = 0; site < skips; site++)
             blocks[site + 1] = blocks[site].nextBlock(ham);       // initial ED
         Sector::lancTolerance = groundStateErrorTolerance
                                 * groundStateErrorTolerance / 2;
+        int lSFinal = ham.lSys / 2 - 1;     // final length of the system block
         for(int site = skips, end = lSFinal - 1; site < end; site++)
             blocks[site + 1] = blocks[site].nextBlock(ham, false, true, site);
         if(nSweeps != 0)

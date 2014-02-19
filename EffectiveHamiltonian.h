@@ -23,11 +23,12 @@ class EffectiveHamiltonian
 
     private:
         rmMatrixXd psiGround;               // final superblock ground state
-		int mSFinal,				// final number of states stored per block
+		int lSupFinal,              // final system size
+            mSFinal,				// final number of states stored per block
             skips;                  // number of edge sites in the position basis
 
         void placeOp(const std::pair<MatrixDd, int>& op, opsMap& blockSide,
-                     bool reflect, int lSupFinal = 0);
+                     bool reflect);
                     // assign each one-site observable to the appropriate block
         Eigen::MatrixXd rhoBasisRep(const opsMap& blockOps,
 									std::vector<TheBlock>& blocks) const;
