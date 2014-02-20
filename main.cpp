@@ -105,8 +105,8 @@ int main()
         Sector::lancTolerance = groundStateErrorTolerance
                                 * groundStateErrorTolerance / 2;
         int lSFinal = lSys / 2 - 1;         // final length of the system block
-        for(int site = skips, end = lSFinal - 1; site < end; site++)
-            blocks[site + 1] = blocks[site].nextBlock(ham, false);
+        for(int site = skips, end = lSFinal - 1; site < end; site++)    //iDMRG
+            blocks[site + 1] = blocks[site].nextBlock(ham, false, true, site);
         if(nSweeps != 0)
             std::cout << "Performing fDMRG..." << std::endl;
         for(int i = 1; i <= nSweeps; i++)           // perform the fDMRG sweeps
