@@ -113,14 +113,15 @@ void TheBlock::reflectPredictedPsi()
 };
 
 EffectiveHamiltonian TheBlock::createHSuperFinal(const Hamiltonian& ham,
+                                                 const TheBlock& compBlock,
                                                  int skips) const
 {
 	return EffectiveHamiltonian(qNumList, ham,
-                                MatrixXd(kp(hS, Id(d * m * d))
-								+ kp(ham.blockSiteJoin(rhoBasisH2), Id(m * d))
-								+ ham.siteSiteJoin(m, m)
-								+ kp(Id(m * d), ham.blockSiteJoin(rhoBasisH2))
-								+ kp(kp(Id(m * d), hS), Id_d)),
+                                MatrixXd(kp(hS, Id(d * compBlock.m * d))
+								+ kp(ham.blockSiteJoin(rhoBasisH2), Id(compBlock.m * d))
+								+ ham.siteSiteJoin(m, compBlock.m)
+								+ kp(Id(m * d), ham.blockSiteJoin(compBlock.rhoBasisH2))
+								+ kp(kp(Id(m * d), compBlock.hS), Id_d)),
                                 m, skips);
 };
 

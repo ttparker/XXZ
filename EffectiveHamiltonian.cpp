@@ -20,7 +20,8 @@ EffectiveHamiltonian::EffectiveHamiltonian(const std::vector<int>& qNumList,
 };
 
 double EffectiveHamiltonian::expValue(const opsVec& ops,
-                                      std::vector<TheBlock>& blocks)
+                                      std::vector<TheBlock>& leftBlocks,
+                                      std::vector<TheBlock>& rightBlocks)
 {
     opsMap sysBlockOps, // observable operators that will act on the system block
            envBlockOps;                         // same for environment block
@@ -33,7 +34,7 @@ double EffectiveHamiltonian::expValue(const opsVec& ops,
     {
         int site = opToEvaluate.second;
 		if(site < lSFinal)
-			placeOp(opToEvaluate, sysBlockOps, false);
+			placeOp(opToEvaluate, sysBlockOps, true);
 		else if(site == lSFinal)
 		{						// if necessary, assign left free-site operator
 			lFreeSite *= opToEvaluate.first;
@@ -45,7 +46,7 @@ double EffectiveHamiltonian::expValue(const opsVec& ops,
 			opAtrFreeSite = true;
 		}
 		else
-			placeOp(opToEvaluate, envBlockOps, true);
+			placeOp(opToEvaluate, envBlockOps, false);
     };
 	if(sysBlockOps.empty() && !opAtlFreeSite)
 						// observables in right-hand half of superblock case
@@ -62,7 +63,7 @@ double EffectiveHamiltonian::expValue(const opsVec& ops,
 			psiGround.resize(mSFinal * d, mSFinal * d);
 			return (psiGround.adjoint()
 					* psiGround
-					* kp(rhoBasisRep(envBlockOps, blocks), rFreeSite).transpose()
+					* kp(rhoBasisRep(envBlockOps, rightBlocks), rFreeSite).transpose()
 				   ).trace();
 		}
 	else if(envBlockOps.empty() && !opAtrFreeSite)
@@ -71,7 +72,7 @@ double EffectiveHamiltonian::expValue(const opsVec& ops,
 		{
 			psiGround.resize(mSFinal, d * mSFinal * d);
 			return (psiGround.adjoint()
-					* rhoBasisRep(sysBlockOps, blocks)
+					* rhoBasisRep(sysBlockOps, leftBlocks)
 					* psiGround
 				   ).trace();
 		}
@@ -79,7 +80,7 @@ double EffectiveHamiltonian::expValue(const opsVec& ops,
 		{
 			psiGround.resize(mSFinal * d, mSFinal * d);
 			return (psiGround.adjoint()
-					* kp(rhoBasisRep(sysBlockOps, blocks), lFreeSite)
+					* kp(rhoBasisRep(sysBlockOps, leftBlocks), lFreeSite)
 					* psiGround
 				   ).trace();
 		}
@@ -87,17 +88,17 @@ double EffectiveHamiltonian::expValue(const opsVec& ops,
 	{
 	psiGround.resize(mSFinal * d, mSFinal * d);
 	return (psiGround.adjoint()
-			* kp(rhoBasisRep(sysBlockOps, blocks), lFreeSite)
+			* kp(rhoBasisRep(sysBlockOps, leftBlocks), lFreeSite)
 			* psiGround
-			* kp(rhoBasisRep(envBlockOps, blocks), rFreeSite).transpose()
+			* kp(rhoBasisRep(envBlockOps, rightBlocks), rFreeSite).transpose()
 		   ).trace();
 	};
 };
 
 void EffectiveHamiltonian::placeOp(const std::pair<MatrixDd, int>& op,
-                                   opsMap& blockSide, bool reflect)
+                                   opsMap& blockSide, bool systemSide)
 {
-    int lhSite = (reflect ? lSupFinal - 1 - op.second : op.second);
+    int lhSite = (systemSide ? op.second : lSupFinal - 1 - op.second);
     if(blockSide.count(lhSite))         // already an observable at this site?
         blockSide[lhSite] *= op.first;
     else

@@ -97,35 +97,48 @@ int main()
         int skips = 0;
         for(int runningKeptStates = d * d; runningKeptStates <= mMax; skips++)
             runningKeptStates *= d;  // find how many edge sites can be skipped
-        std::vector<TheBlock> blocks(lSys - 3 - skips);    // initialize system
-        blocks[0] = TheBlock(ham, mMax);       // initialize the one-site block
+        std::vector<TheBlock> leftBlocks(lSys - 3 - skips), // initialize system
+                              rightBlocks(lSys - 3 - skips);
+        leftBlocks[0] = rightBlocks[0]
+                      = TheBlock(ham, mMax);   // initialize the one-site block
         std::cout << "Performing iDMRG..." << std::endl;
         for(int site = 0; site < skips; site++)
-            blocks[site + 1] = blocks[site].nextBlock(ham);       // initial ED
+            rightBlocks[site + 1] = leftBlocks[site + 1]
+                                  = leftBlocks[site].nextBlock(ham);  // initial ED
         Sector::lancTolerance = groundStateErrorTolerance
                                 * groundStateErrorTolerance / 2;
         int lSFinal = lSys / 2 - 1;         // final length of the system block
         for(int site = skips, end = lSFinal - 1; site < end; site++)    //iDMRG
-            blocks[site + 1] = blocks[site].nextBlock(ham, false, true, site);
+        {
+            rightBlocks[site + 1] = leftBlocks[site + 1]
+                                  = leftBlocks[site].nextBlock(ham, false, true,
+                                                               site);
+            rightBlocks[site].primeToRhoBasis = leftBlocks[site].primeToRhoBasis;
+        };
         if(nSweeps != 0)
             std::cout << "Performing fDMRG..." << std::endl;
         for(int i = 1; i <= nSweeps; i++)           // perform the fDMRG sweeps
         {
             for(int site = lSFinal - 1, end = lSys - 4 - skips; site < end;
                 site++)
-                blocks[site + 1] = blocks[site].nextBlock(ham, false, false, site,
-                                                          blocks[lSys - 4 - site],
-                                                          blocks[lSys - 5 - site]);
-            blocks[skips].reflectPredictedPsi();
+                leftBlocks[site + 1] = leftBlocks[site].nextBlock(ham, false,
+                                       false, site, rightBlocks[lSys - 4 - site],
+                                       rightBlocks[lSys - 5 - site]);
+            rightBlocks[skips].reflectPredictedPsi();
                                // reflect the system to reverse sweep direction
+            for(int site = skips, end = lSys - 4 - skips; site < end; site++)
+                rightBlocks[site + 1] = rightBlocks[site].nextBlock(ham, false,
+                                        false, site, leftBlocks[lSys - 4 - site],
+                                        leftBlocks[lSys - 5 - site]);
+            leftBlocks[skips].reflectPredictedPsi();
             for(int site = skips, end = lSFinal - 1; site < end; site++)
-                blocks[site + 1] = blocks[site].nextBlock(ham, false, false, site,
-                                                          blocks[lSys - 4 - site],
-                                                          blocks[lSys - 5 - site]);
+                leftBlocks[site + 1] = leftBlocks[site].nextBlock(ham, false,
+                                       false, site, rightBlocks[lSys - 4 - site],
+                                       rightBlocks[lSys - 5 - site]);
             std::cout << "Sweep " << i << " complete." << std::endl;
         };
-        EffectiveHamiltonian hSuperFinal = blocks[lSFinal - 1]
-                                           .createHSuperFinal(ham, skips);
+        EffectiveHamiltonian hSuperFinal = leftBlocks[lSFinal - 1]
+                      .createHSuperFinal(ham, rightBlocks[lSFinal - 1], skips);
                                                // calculate ground-state energy
         fileout << "Ground state energy density = "
                 << hSuperFinal.gsEnergy / lSys << std::endl << std::endl;
@@ -134,11 +147,11 @@ int main()
             std::cout << "Calculating observables..." << std::endl;
             if(calcOneSiteExpValues)   // calculate one-site expectation values
                 oneSiteExpValues(oneSiteOp, rangeOfObservables, lSys,
-                                 hSuperFinal, blocks, fileout);
+                                 hSuperFinal, leftBlocks, rightBlocks, fileout);
             if(calcTwoSiteExpValues)   // calculate two-site expectation values
                 twoSiteExpValues(firstTwoSiteOp, secondTwoSiteOp,
-                                 rangeOfObservables, lSys, hSuperFinal, blocks,
-                                 fileout);
+                                 rangeOfObservables, lSys, hSuperFinal,
+                                 leftBlocks, rightBlocks, fileout);
         };
         std::cout << std::endl;
         clock_t stopTrial = clock();
