@@ -7,10 +7,6 @@
 #include <unsupported/Eigen/KroneckerProduct>
 #include "d.h"
 
-#define kp kroneckerProduct
-#define Id(size) MatrixXd::Identity(size, size)
-#define Id_d MatrixDd::Identity()   // one-site identity matrix
-
 typedef Eigen::Matrix<double, d, d> MatrixDd;
 
 #endif
