@@ -107,22 +107,28 @@ int main()
         int lSFinal = lSys / 2 - 1;         // final length of the system block
         for(int site = skips, end = lSFinal - 1; site < end; site++)    //iDMRG
             blocks[site + 1] = blocks[site].nextBlock(ham, false, true, site);
-        if(nSweeps != 0)
-            std::cout << "Performing fDMRG..." << std::endl;
-        for(int i = 1; i <= nSweeps; i++)           // perform the fDMRG sweeps
+        if(nSweeps == 0)
+            blocks[lSFinal - 1].randomSeed();
+        else
         {
-            for(int site = lSFinal - 1, end = lSys - 4 - skips; site < end;
-                site++)
-                blocks[site + 1] = blocks[site].nextBlock(ham, false, false, site,
-                                                          blocks[lSys - 4 - site],
-                                                          blocks[lSys - 5 - site]);
-            blocks[skips].reflectPredictedPsi();
+            std::cout << "Performing fDMRG..." << std::endl;
+            for(int i = 1; i <= nSweeps; i++)       // perform the fDMRG sweeps
+            {
+                for(int site = lSFinal - 1, end = lSys - 4 - skips; site < end;
+                    site++)
+                    blocks[site + 1] = blocks[site].nextBlock(ham, false, false,
+                                                    site,
+                                                    blocks[lSys - 4 - site],
+                                                    blocks[lSys - 5 - site]);
+                blocks[skips].reflectPredictedPsi();
                                // reflect the system to reverse sweep direction
-            for(int site = skips, end = lSFinal - 1; site < end; site++)
-                blocks[site + 1] = blocks[site].nextBlock(ham, false, false, site,
-                                                          blocks[lSys - 4 - site],
-                                                          blocks[lSys - 5 - site]);
-            std::cout << "Sweep " << i << " complete." << std::endl;
+                for(int site = skips, end = lSFinal - 1; site < end; site++)
+                    blocks[site + 1] = blocks[site].nextBlock(ham, false, false,
+                                                    site,
+                                                    blocks[lSys - 4 - site],
+                                                    blocks[lSys - 5 - site]);
+                std::cout << "Sweep " << i << " complete." << std::endl;
+            };
         };
         EffectiveHamiltonian hSuperFinal = blocks[lSFinal - 1]
                                            .createHSuperFinal(ham, skips);

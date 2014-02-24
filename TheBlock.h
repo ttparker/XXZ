@@ -24,6 +24,7 @@ class TheBlock
 						   const TheBlock& compBlock = TheBlock(),
                            const TheBlock& beforeCompBlock = TheBlock());
                                                    // performs each DMRG step
+        void randomSeed();                         // for iDMRG case
         void reflectPredictedPsi();            // when you reach edge of system
         EffectiveHamiltonian createHSuperFinal(const Hamiltonian& ham,
                                                int skips) const;

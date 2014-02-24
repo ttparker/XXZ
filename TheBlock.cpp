@@ -105,6 +105,12 @@ TheBlock TheBlock::nextBlock(const Hamiltonian& ham, bool exactDiag,
 								// save expanded-block operators in new basis
 };
 
+void TheBlock::randomSeed()
+{
+    psiGround = VectorXd::Random(m * d * m * d);
+    psiGround /= psiGround.norm();
+};
+
 void TheBlock::reflectPredictedPsi()
 {
     psiGround.resize(mMax * d, m * d);
