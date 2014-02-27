@@ -2,7 +2,7 @@ PROG = XXZ
 CXX = g++
 CXXFLAGS = -Wall -Wextra -O3 -std=c++11 -march=native -I ../Eigen_3.2.0 $(DEBUG)
 LIBS = -llapack
-OBJS = EffectiveHamiltonian.o ESolver.o FreeFunctions.o Lanczos.o main.o TheBlock.o XXZ.o
+OBJS = EffectiveHamiltonian.o ESolver.o FreeFunctions.o Lanczos.o main.o TheBlock.o $(PROG).o
 COMMONHS1 = d.h main.h
 COMMONHS2 = $(COMMONHS1) Hamiltonian.h TheBlock.h EffectiveHamiltonian.h FreeFunctions.h ESolver.h
 light = rm -f *.cpp~ *.h~ Makefile~
@@ -24,7 +24,7 @@ main.o: $(COMMONHS2) ObservableOps.h
 
 TheBlock.o: $(COMMONHS2)
 
-XXZ.o: $(COMMONHS1) Hamiltonian.h
+$(PROG).o: $(COMMONHS1) Hamiltonian.h
 
 lightclean:
 	$(light)
