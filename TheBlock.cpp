@@ -41,7 +41,8 @@ TheBlock TheBlock::nextBlock(const Hamiltonian& ham, bool exactDiag,
 		    tempRhoBasisH2.push_back(kp(Id(m), *op));
 		return TheBlock(md, hSprime, tempRhoBasisH2, hSprimeQNumList);
 	};
-    int compmd = compBlock.m * d;
+    int compm = compBlock.m,
+        compmd = compm * d;
     VectorXd seed;
     if(infiniteStage)
     {
@@ -65,7 +66,7 @@ TheBlock TheBlock::nextBlock(const Hamiltonian& ham, bool exactDiag,
 										ham.targetQNum * (l + 2) / ham.lSys * 2,
                                         seed) :	// int automatically rounds down
 							  HamSolver(MatrixXd(kp(hSprime, Id(compmd))
-												 + ham.siteSiteJoin(m, compBlock.m)
+												 + ham.siteSiteJoin(m, compm)
 												 + kp(Id(md),
 													  ham.blockSiteJoin(compBlock.rhoBasisH2))
 												 + kp(kp(Id(md), compBlock.hS),
@@ -88,14 +89,14 @@ TheBlock TheBlock::nextBlock(const Hamiltonian& ham, bool exactDiag,
                     // transpose the environment block and right-hand free site
         {
             rmMatrixXd ePrime = psiGround.row(sPrimeIndex);
-            ePrime.resize(compBlock.m, d);
+            ePrime.resize(compm, d);
             ePrime.transposeInPlace();
             ePrime.resize(1, compmd);
             psiGround.row(sPrimeIndex) = ePrime;
         };
         psiGround = primeToRhoBasis.adjoint() * psiGround; 
                                       // change the expanded system block basis
-        psiGround.resize(mMax * d, compBlock.m);
+        psiGround.resize(mMax * d, compm);
         psiGround *= beforeCompBlock.primeToRhoBasis.transpose();
                                           // change the environment block basis
         psiGround.resize(mMax * d * beforeCompBlock.primeToRhoBasis.rows(), 1);
@@ -122,10 +123,11 @@ EffectiveHamiltonian TheBlock::createHSuperFinal(const Hamiltonian& ham,
                                                  const TheBlock& compBlock,
                                                  int skips) const
 {
-	return EffectiveHamiltonian(qNumList, compBlock.qNumList, ham,
-                                MatrixXd(kp(hS, Id(d * compBlock.m * d))
-								+ kp(ham.blockSiteJoin(rhoBasisH2), Id(compBlock.m * d))
-								+ ham.siteSiteJoin(m, compBlock.m)
+    int compm = compBlock.m;
+    return EffectiveHamiltonian(qNumList, compBlock.qNumList, ham,
+                                MatrixXd(kp(hS, Id(d * compm * d))
+                                + kp(ham.blockSiteJoin(rhoBasisH2), Id(compm * d))
+                                + ham.siteSiteJoin(m, compm)
 								+ kp(Id(m * d), ham.blockSiteJoin(compBlock.rhoBasisH2))
 								+ kp(kp(Id(m * d), compBlock.hS), Id_d)),
                                 m, skips);
