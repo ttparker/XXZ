@@ -10,7 +10,7 @@
 
 using namespace Eigen;
 
-Hamiltonian::Hamiltonian()
+Hamiltonian::Hamiltonian() : oneSiteQNums({1, -1})
 {
 	h2.resize(3);
 	sigmaplus << 0., 1.,
@@ -19,9 +19,6 @@ Hamiltonian::Hamiltonian()
 				  1., 0.;
 	sigmaz << 1., 0.,
 			  0., -1.;								 // define Pauli matrices
-	oneSiteQNums.reserve(2);
-	oneSiteQNums.push_back(1);
-	oneSiteQNums.push_back(-1);
 };
 
 void Hamiltonian::setParams(int lSysIn,
