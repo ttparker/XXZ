@@ -4,16 +4,18 @@
 using namespace Eigen;
 
 EffectiveHamiltonian::EffectiveHamiltonian(const std::vector<int>& qNumList,
+                                           const std::vector<int>& compQNumList,
                                            const Hamiltonian& ham,
                                            const MatrixXd& matFinal,
                                            int mSFinal, int skips)
 	: lSupFinal(ham.lSys), mSFinal(mSFinal), skips(skips)
 {
-	std::vector<int> hSprimeQNumList = vectorProductSum(qNumList,
-                                                        ham.oneSiteQNums);
     VectorXd seed = TheBlock::psiGround;
 	HamSolver hSuperSolver(matFinal,
-						   vectorProductSum(hSprimeQNumList, hSprimeQNumList),
+						   vectorProductSum(vectorProductSum(qNumList,
+                                                             ham.oneSiteQNums),
+                                            vectorProductSum(compQNumList,
+                                                             ham.oneSiteQNums)),
 						   ham.targetQNum, seed);
 	psiGround = hSuperSolver.lowestEvec;
 	gsEnergy = hSuperSolver.lowestEval;

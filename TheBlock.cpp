@@ -122,7 +122,7 @@ EffectiveHamiltonian TheBlock::createHSuperFinal(const Hamiltonian& ham,
                                                  const TheBlock& compBlock,
                                                  int skips) const
 {
-	return EffectiveHamiltonian(qNumList, ham,
+	return EffectiveHamiltonian(qNumList, compBlock.qNumList, ham,
                                 MatrixXd(kp(hS, Id(d * compBlock.m * d))
 								+ kp(ham.blockSiteJoin(rhoBasisH2), Id(compBlock.m * d))
 								+ ham.siteSiteJoin(m, compBlock.m)
