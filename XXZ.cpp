@@ -37,9 +37,9 @@ MatrixXd Hamiltonian::blockSiteJoin(const std::vector<MatrixXd>& rhoBasisH2) con
 						+ kp(rhoBasisSigmaplus.adjoint(), sigmaplus));
 };
 
-MatrixXd Hamiltonian::siteSiteJoin(int m1, int m2) const
+MatrixXd Hamiltonian::siteSiteJoin(int ml, int mlE) const
 {
-	return jz * kp(kp(Id(m1), sigmaz), kp(Id(m2), sigmaz))
-		   + 2 * jxy * (kp(kp(Id(m1), sigmaplus), kp(Id(m2), sigmaminus))
-						+ kp(kp(Id(m1), sigmaminus), kp(Id(m2), sigmaplus)));
+	return kp(Id(ml), jz * kp(kp(sigmaz, Id(mlE)), sigmaz)
+                      + 2 * jxy * (kp(kp(sigmaplus, Id(mlE)), sigmaminus)
+                                   + kp(kp(sigmaminus, Id(mlE)), sigmaplus)));
 };
