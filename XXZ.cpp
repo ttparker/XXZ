@@ -21,13 +21,12 @@ Hamiltonian::Hamiltonian() : oneSiteQNums({1, -1})
 			  0., -1.;								 // define Pauli matrices
 };
 
-void Hamiltonian::setParams(int lSysIn,
-                            const std::vector<double>& couplingConstantsIn,
-                            int targetQNumIn)
+void Hamiltonian::setParams(const std::vector<double>& couplingConstantsIn,
+                            int targetQNumIn, int lSysIn)
 {
-    lSys = lSysIn;
     couplingConstants = couplingConstantsIn;
     targetQNum = targetQNumIn;
+    lSys = lSysIn;
 };
 
 MatrixXd Hamiltonian::blockSiteJoin(const std::vector<MatrixXd>& rhoBasisH2) const

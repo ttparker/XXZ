@@ -9,20 +9,19 @@
 class Hamiltonian
 {
 	public:
-		int lSys,									// current system length
-            targetQNum;             // targeted average magnetization per site
-        std::vector<int> oneSiteQNums;
-        
 		Hamiltonian();
-        void setParams(int lSysIn, const std::vector<double>& couplingConstants,
-                       int targetQNumIn);
+        void setParams(const std::vector<double>& couplingConstants,
+                       int targetQNumIn, int lSysIn);
  
         EIGEN_MAKE_ALIGNED_OPERATOR_NEW
   
 	private:
-		std::vector<double> couplingConstants;
 		std::vector<MatrixDd, Eigen::aligned_allocator<MatrixDd>> h2;
                                             // site-basis coupling operators
+        std::vector<double> couplingConstants;
+        std::vector<int> oneSiteQNums;
+        int targetQNum,             // targeted average magnetization per site
+            lSys;                                   // current system length
         
 		Eigen::MatrixXd
 			blockSiteJoin(const std::vector<Eigen::MatrixXd>& rhoBasisH2) const,
@@ -31,6 +30,7 @@ class Hamiltonian
 										// joins the two free sites together
     
 	friend class TheBlock;
+    friend class EffectiveHamiltonian;
 };
 
 #endif

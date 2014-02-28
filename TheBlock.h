@@ -13,17 +13,15 @@ class EffectiveHamiltonian;
 class TheBlock
 {
 	public:
-        Eigen::MatrixXd primeToRhoBasis;            // change-of-basis matrix
-        
         TheBlock(int m = 0,
 				 const Eigen::MatrixXd& hS = Eigen::MatrixXd(),
 				 const std::vector<Eigen::MatrixXd>& rhoBasisH2 
 						= std::vector<Eigen::MatrixXd>(),
 				 const std::vector<int>& qNumList = std::vector<int>());
 		TheBlock(const Hamiltonian& ham, int mMaxIn);
-        TheBlock nextBlock(const Hamiltonian& ham, bool exactDiag = true,
-                           bool infiniteStage = true, int l = 0,
-						   const TheBlock& compBlock = TheBlock(),
+        TheBlock nextBlock(const Hamiltonian& ham,
+                           TheBlock& compBlock, int l = 0,
+                           bool exactDiag = true, bool infiniteStage = true,
                            const TheBlock& beforeCompBlock = TheBlock());
                                                    // performs each DMRG step
         void randomSeed();                         // for iDMRG case
@@ -44,6 +42,7 @@ class TheBlock
         std::vector<int> qNumList;			// tracks the conserved quantum
 											// number of each row/column of hS
 		static int mMax;				// max size of effective Hamiltonian
+        Eigen::MatrixXd primeToRhoBasis;            // change-of-basis matrix
         
 		Eigen::MatrixXd changeBasis(const Eigen::MatrixXd& mat) const;
 				// represents operators in the basis of the new system block
