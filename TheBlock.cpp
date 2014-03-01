@@ -66,10 +66,8 @@ TheBlock TheBlock::nextBlock(const Hamiltonian& ham, TheBlock& compBlock,
                                         seed) :	// int automatically rounds down
 							  HamSolver(MatrixXd(kp(hSprime, Id(compmd))
 												 + ham.siteSiteJoin(m, compm)
-												 + kp(Id(md),
-													  ham.blockSiteJoin(compBlock.rhoBasisH2))
-												 + kp(kp(Id(md), compBlock.hS),
-													  Id_d)),
+												 + kp(Id(md), ham.blockSiteJoin(compBlock.rhoBasisH2)
+                                                              + kp(compBlock.hS, Id_d))),
 										vectorProductSum(hSprimeQNumList,
 														 vectorProductSum(compBlock.qNumList,
 																		  ham.oneSiteQNums)),
@@ -126,11 +124,11 @@ EffectiveHamiltonian TheBlock::createHSuperFinal(const Hamiltonian& ham,
 {
     int compm = compBlock.m;
     return EffectiveHamiltonian(qNumList, compBlock.qNumList, ham,
-                                MatrixXd(kp(hS, Id(d * compm * d))
-                                + kp(ham.blockSiteJoin(rhoBasisH2), Id(compm * d))
-                                + ham.siteSiteJoin(m, compm)
-								+ kp(Id(m * d), ham.blockSiteJoin(compBlock.rhoBasisH2))
-								+ kp(kp(Id(m * d), compBlock.hS), Id_d)),
+                                MatrixXd(kp(kp(hS, Id_d)
+                                            + ham.blockSiteJoin(rhoBasisH2), Id(compm * d))
+                                         + ham.siteSiteJoin(m, compm)
+                                         + kp(Id(m * d), ham.blockSiteJoin(compBlock.rhoBasisH2)
+                                                         + kp(compBlock.hS, Id_d))),
                                 m, skips);
 };
 
