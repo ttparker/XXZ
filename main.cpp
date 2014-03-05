@@ -62,6 +62,7 @@ int main()
         std::cerr << "Couldn't open output files." << std::endl;
         exit(EXIT_FAILURE);
     };
+    infoout.close();
     Hamiltonian ham;            // initialize the system's Hamiltonian
     for(int trial = 1; trial <= nTrials; trial++)
     {
