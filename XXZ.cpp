@@ -31,14 +31,14 @@ void Hamiltonian::setParams(const std::vector<double>& couplingConstantsIn,
 
 MatrixXd Hamiltonian::blockSiteJoin(const std::vector<MatrixXd>& rhoBasisH2) const
 {
-	return jz * kp(rhoBasisSigmaz, sigmaz)
-		   + 2 * jxy * (kp(rhoBasisSigmaplus, sigmaminus)
-						+ kp(rhoBasisSigmaplus.adjoint(), sigmaplus));
+    MatrixXd plusMinus = kp(rhoBasisSigmaplus, sigmaminus);
+	return jz * kp(rhoBasisSigmaz, sigmaz) + 2 * jxy * (plusMinus
+                                                        + plusMinus.adjoint());
 };
 
 MatrixXd Hamiltonian::siteSiteJoin(int ml, int mlE) const
 {
+    MatrixXd plusMinus = kp(kp(sigmaplus, Id(mlE)), sigmaminus);
 	return kp(Id(ml), jz * kp(kp(sigmaz, Id(mlE)), sigmaz)
-                      + 2 * jxy * (kp(kp(sigmaplus, Id(mlE)), sigmaminus)
-                                   + kp(kp(sigmaminus, Id(mlE)), sigmaplus)));
+                      + 2 * jxy * (plusMinus + plusMinus.adjoint()));
 };
