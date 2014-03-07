@@ -10,10 +10,10 @@ int TheBlock::mMax;
 TheBlock::TheBlock(int m, const MatrixXd& hS,
 				   const std::vector<MatrixXd>& rhoBasisH2,
 				   const std::vector<int>& qNumList)
-	: hS(hS), rhoBasisH2(rhoBasisH2), m(m), qNumList(qNumList) {};
+	: qNumList(qNumList), hS(hS), rhoBasisH2(rhoBasisH2), m(m) {};
 
 TheBlock::TheBlock(const Hamiltonian& ham, int mMaxIn)
-	: hS(MatrixDd::Zero()), m(d), qNumList(ham.oneSiteQNums)
+	: qNumList(ham.oneSiteQNums), hS(MatrixDd::Zero()), m(d)
 {
     firstfDMRGStep = true;
 	mMax = mMaxIn;
