@@ -4,15 +4,15 @@
 class Sector
 {
 	public:
-        static double lancTolerance;
-        
         Sector() {};
+        static void setLancTolerance(double newLancTolerance);
         
 	private:
 		std::vector<int> positions;			// which rows and columns
 											// of matrix are in sector
 		int multiplicity;					// size of this symmetry sector
         Eigen::MatrixXd sectorMat;          // sector operator
+        static double lancTolerance;
         static int fullMatrixSize;
         Eigen::SelfAdjointEigenSolver<Eigen::MatrixXd> solver; // DM eigensystem
 		int sectorColumnCounter;			// tracks which sector eigenvector

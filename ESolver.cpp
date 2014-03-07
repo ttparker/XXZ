@@ -8,6 +8,11 @@ using namespace Eigen;
 double Sector::lancTolerance;
 int Sector::fullMatrixSize;
 
+void Sector::setLancTolerance(double newLancTolerance)
+{
+    lancTolerance = newLancTolerance;
+};
+
 Sector::Sector(const std::vector<int>& qNumList, int qNum, const MatrixXd& mat)
 	: multiplicity(std::count(qNumList.begin(), qNumList.end(), qNum)),
 	  sectorMat(MatrixXd(multiplicity, multiplicity)),
