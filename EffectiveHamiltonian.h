@@ -20,21 +20,21 @@ class EffectiveHamiltonian
         double gsEnergy() const,                         // ground-state energy
                expValue(const opsVec& ops, std::vector<TheBlock>& leftBlocks,
                         std::vector<TheBlock>& rightBlocks);
-		// calculates exectation value of a combination of single-site operators
+        // calculates exectation value of a combination of single-site operators
     
     private:
         double storedGSEnergy;
         rmMatrixXd psiGround;               // final superblock ground state
-		int lSupFinal,              // final system size
-            mSFinal,				// final number of states stored per block
+        int lSupFinal,              // final system size
+            mSFinal,                // final number of states stored per block
             skips;                  // number of edge sites in the position basis
         
         void placeOp(const std::pair<MatrixDd, int>& op, opsMap& blockSide,
                      bool systemSide);
                     // assign each one-site observable to the appropriate block
         Eigen::MatrixXd rhoBasisRep(const opsMap& blockOps,
-									std::vector<TheBlock>& blocks) const;
-				// converts single-site operators into the system block basis
+                                    std::vector<TheBlock>& blocks) const;
+                // converts single-site operators into the system block basis
 };
 
 #endif

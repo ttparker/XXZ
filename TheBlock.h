@@ -12,13 +12,13 @@ class EffectiveHamiltonian;
 
 class TheBlock
 {
-	public:
+    public:
         TheBlock(int m = 0,
-				 const Eigen::MatrixXd& hS = Eigen::MatrixXd(),
-				 const std::vector<Eigen::MatrixXd>& rhoBasisH2 
-						= std::vector<Eigen::MatrixXd>(),
-				 const std::vector<int>& qNumList = std::vector<int>());
-		TheBlock(const Hamiltonian& ham, int mMaxIn);
+                 const Eigen::MatrixXd& hS = Eigen::MatrixXd(),
+                 const std::vector<Eigen::MatrixXd>& rhoBasisH2 
+                     = std::vector<Eigen::MatrixXd>(),
+                 const std::vector<int>& qNumList = std::vector<int>());
+        TheBlock(const Hamiltonian& ham, int mMaxIn);
         TheBlock nextBlock(TheBlock& compBlock, int l = 0,
                            bool exactDiag = true, bool infiniteStage = true,
                            const TheBlock& beforeCompBlock = TheBlock());
@@ -27,9 +27,9 @@ class TheBlock
         void reflectPredictedPsi();            // when you reach edge of system
         EffectiveHamiltonian createHSuperFinal(const TheBlock& compBlock,
                                                int skips) const;
-					// HSuperFinal, mSFinal, qNumList, oneSiteQNums, targetQNum
+                    // HSuperFinal, mSFinal, qNumList, oneSiteQNums, targetQNum
     
-	private:
+    private:
         std::vector<int> qNumList;
                 // tracks the conserved quantum number of each row/column of hS
         Eigen::MatrixXd hS;                             // block Hamiltonian
@@ -43,10 +43,10 @@ class TheBlock
         static bool firstfDMRGStep;
                     // slight abuse of nomenclature - true during iDMRG as well
         
-		Eigen::MatrixXd changeBasis(const Eigen::MatrixXd& mat) const;
-				// represents operators in the basis of the new system block
+        Eigen::MatrixXd changeBasis(const Eigen::MatrixXd& mat) const;
+                // represents operators in the basis of the new system block
     
-	friend class EffectiveHamiltonian;
+    friend class EffectiveHamiltonian;
 };
 
 #endif
