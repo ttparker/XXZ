@@ -3,26 +3,28 @@
 
 using namespace Eigen;
 
+Hamiltonian TheBlock::ham;
 rmMatrixXd TheBlock::psiGround;
-bool TheBlock::firstfDMRGStep;
 int TheBlock::mMax;
+bool TheBlock::firstfDMRGStep;
 
 TheBlock::TheBlock(int m, const MatrixXd& hS,
 				   const std::vector<MatrixXd>& rhoBasisH2,
 				   const std::vector<int>& qNumList)
 	: qNumList(qNumList), hS(hS), rhoBasisH2(rhoBasisH2), m(m) {};
 
-TheBlock::TheBlock(const Hamiltonian& ham, int mMaxIn)
+TheBlock::TheBlock(const Hamiltonian& hamIn, int mMaxIn)
 	: qNumList(ham.oneSiteQNums), hS(MatrixDd::Zero()), m(d)
 {
     firstfDMRGStep = true;
+    ham = hamIn;
 	mMax = mMaxIn;
 	rhoBasisH2.assign(ham.h2.begin(),
 					  ham.h2.begin() + ham.couplingConstants.size());
 };
 
-TheBlock TheBlock::nextBlock(const Hamiltonian& ham, TheBlock& compBlock,
-                             int l, bool exactDiag, bool infiniteStage,
+TheBlock TheBlock::nextBlock(TheBlock& compBlock, int l, bool exactDiag,
+                             bool infiniteStage,
                              const TheBlock& beforeCompBlock)
 {
 	std::vector<int> hSprimeQNumList	// add in quantum numbers of new site
@@ -118,8 +120,7 @@ void TheBlock::reflectPredictedPsi()
     psiGround.resize(mMax * d * m * d, 1);
 };
 
-EffectiveHamiltonian TheBlock::createHSuperFinal(const Hamiltonian& ham,
-                                                 const TheBlock& compBlock,
+EffectiveHamiltonian TheBlock::createHSuperFinal(const TheBlock& compBlock,
                                                  int skips) const
 {
     int compm = compBlock.m;
