@@ -33,27 +33,28 @@ class Sector
 
 class HamSolver
 {
-    private:
-        Eigen::VectorXd lowestEvec;
-        double lowestEval;
-
+    public:
         HamSolver(const Eigen::MatrixXd& mat, const std::vector<int>& qNumList,
                   int targetQNum, Eigen::VectorXd& bigSeed);
+        Eigen::VectorXd lowestEvec() const;
+        double lowestEval() const;
     
-    friend class TheBlock;
-    friend class EffectiveHamiltonian;
+    private:
+        Eigen::VectorXd storedLowestEvec;
+        double storedLowestEval;
 };
 
 class DMSolver
 {
-    private:
-        Eigen::MatrixXd highestEvecs;
-        std::vector<int> highestEvecQNums;
-
+    public:
         DMSolver(const Eigen::MatrixXd& mat, const std::vector<int>& qNumList,
                  int evecsToKeep);
-
-    friend class TheBlock;
+        Eigen::MatrixXd highestEvecs() const;
+        std::vector<int> highestEvecQNums() const;
+    
+    private:
+        Eigen::MatrixXd storedHighestEvecs;
+        std::vector<int> storedHighestEvecQNums;
 };
 
 #endif
