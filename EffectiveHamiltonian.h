@@ -23,18 +23,21 @@ class EffectiveHamiltonian
         // calculates exectation value of a combination of single-site operators
     
     private:
+        int lSupFinal;                                     // final system size
         double storedGSEnergy;
-        rmMatrixXd psiGround;               // final superblock ground state
-        int lSupFinal,              // final system size
-            mSFinal,                // final number of states stored per block
-            skips;                  // number of edge sites in the position basis
+        rmMatrixXd psiGround;                  // final superblock ground state
+        int lSFinal,                            // final length of system block
+            lEFinal,                       // final length of environment block
+            mSFinal,                 // final number of states stored per block
+            skips;                // number of edge sites in the position basis
         
         void placeOp(const std::pair<MatrixDd, int>& op, opsMap& blockSide,
                      bool systemSide);
                     // assign each one-site observable to the appropriate block
         Eigen::MatrixXd rhoBasisRep(const opsMap& blockOps,
-                                    std::vector<TheBlock>& blocks) const;
-                // converts single-site operators into the system block basis
+                                    std::vector<TheBlock>& blocks,
+                                    int blockSize) const;
+                  // converts single-site operators into the system block basis
 };
 
 #endif

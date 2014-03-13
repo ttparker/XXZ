@@ -108,9 +108,9 @@ TheBlock TheBlock::nextBlock(TheBlock& compBlock, int l, bool exactDiag,
                                 // save expanded-block operators in new basis
 };
 
-void TheBlock::randomSeed()
+void TheBlock::randomSeed(const TheBlock& compBlock)
 {
-    psiGround = VectorXd::Random(m * d * m * d);
+    psiGround = VectorXd::Random(m * d * compBlock.m * d);
     psiGround /= psiGround.norm();
 };
 

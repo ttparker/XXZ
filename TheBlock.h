@@ -22,8 +22,8 @@ class TheBlock
         TheBlock nextBlock(TheBlock& compBlock, int l = 0,
                            bool exactDiag = true, bool infiniteStage = true,
                            const TheBlock& beforeCompBlock = TheBlock());
-                                                   // performs each DMRG step
-        void randomSeed();                         // for iDMRG case
+                                                     // performs each DMRG step
+        void randomSeed(const TheBlock& compBlock);           // for iDMRG case
         void reflectPredictedPsi();            // when you reach edge of system
         EffectiveHamiltonian createHSuperFinal(const TheBlock& compBlock,
                                                int skips) const;

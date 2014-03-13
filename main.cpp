@@ -103,18 +103,32 @@ int main()
         leftBlocks[0] = rightBlocks[0]
                       = TheBlock(ham, mMax);   // initialize the one-site block
         std::cout << "Performing iDMRG..." << std::endl;
+            // note: this iDMRG code assumes parity symmetry of the Hamiltonian
         for(int site = 0; site < skips; site++)                   // initial ED
             rightBlocks[site + 1] = leftBlocks[site + 1]
                                   = leftBlocks[site].nextBlock(rightBlocks[site]);
         Sector::setLancTolerance(groundStateErrorTolerance
                                  * groundStateErrorTolerance / 2);
-        int lSFinal = lSys / 2 - 1;         // final length of the system block
-        for(int site = skips, end = lSFinal - 1; site < end; site++)    //iDMRG
+        bool oddSize = lSys % 2;
+        int lSFinal,                        // final length of the system block
+            lEFinal;                   // final length of the environment block
+        if(oddSize)
+        {
+            lSFinal = (lSys - 1)/2;
+            lEFinal = (lSys - 3)/2;
+        }
+        else
+            lSFinal = lEFinal = lSys / 2 - 1;
+        for(int site = skips, end = lEFinal - 1; site < end; site++)   // iDMRG
             rightBlocks[site + 1] = leftBlocks[site + 1]
                                   = leftBlocks[site].nextBlock(rightBlocks[site],
                                                                site, false);
+        if(oddSize)          // last half-step of iDMRG for an odd-sized system
+            leftBlocks[lSFinal - 1] = leftBlocks[lSFinal - 2]
+                                      .nextBlock(leftBlocks[lSFinal - 2],
+                                                 lSFinal - 2, false);
         if(nSweeps == 0)
-            leftBlocks[lSFinal - 1].randomSeed();
+            leftBlocks[lSFinal - 1].randomSeed(rightBlocks[lEFinal - 1]);
         else
         {
             std::cout << "Performing fDMRG..." << std::endl;
@@ -143,7 +157,7 @@ int main()
             };
         };
         EffectiveHamiltonian hSuperFinal = leftBlocks[lSFinal - 1]
-                      .createHSuperFinal(rightBlocks[lSFinal - 1], skips);
+                      .createHSuperFinal(rightBlocks[lEFinal - 1], skips);
                                                // calculate ground-state energy
         fileout << "Ground state energy density = "
                 << hSuperFinal.gsEnergy() / lSys << std::endl << std::endl;
