@@ -17,10 +17,9 @@ int main()
     };
     
     // read in parameters that are constant across all trials:
-    int nTrials,
-        nCouplingConstants;
+    int nTrials;
     bool calcObservables;
-    filein >> nTrials >> nCouplingConstants >> calcObservables;
+    filein >> nTrials >> calcObservables;
     bool calcOneSiteExpValues;
     int indexOfOneSiteOp;
     MatrixDd oneSiteOp;

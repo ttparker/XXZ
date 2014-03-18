@@ -5,7 +5,7 @@
 #include <Eigen/Dense>
 #include <Eigen/StdVector>
 #include <unsupported/Eigen/KroneckerProduct>
-#include "d.h"
+#include "GlobalHamiltonianParameters.h"
 
 typedef Eigen::Matrix<double, d, d> MatrixDd;
 
