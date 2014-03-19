@@ -40,7 +40,7 @@ clean:
 	$(deep)
 
 upload:
-	scp *.cpp *.h Makefile knot.cnsi.ucsb.edu:~/$(DEST)
+	scp -r *.cpp *.h Makefile $(OTHERS) knot.cnsi.ucsb.edu:~/$(DEST)
 
 download:
 	scp knot.cnsi.ucsb.edu:~/$(SOURCE)/Output/Trial_1 Cluster$(SOURCE)
