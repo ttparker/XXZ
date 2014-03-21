@@ -17,8 +17,8 @@ EffectiveHamiltonian::EffectiveHamiltonian(const std::vector<int>& qNumList,
                                             vectorProductSum(compQNumList,
                                                              ham.oneSiteQNums)),
                            ham.targetQNum, seed);
-    storedGSEnergy = hSuperSolver.lowestEval();
-    psiGround = hSuperSolver.lowestEvec();
+    gsEnergy = hSuperSolver.lowestEval;
+    psiGround = hSuperSolver.lowestEvec;
     if(lSupFinal % 2)
     {
         lSFinal = (lSupFinal - 1)/2;
@@ -26,11 +26,6 @@ EffectiveHamiltonian::EffectiveHamiltonian(const std::vector<int>& qNumList,
     }
     else
         lSFinal = lEFinal = lSupFinal / 2 - 1;
-};
-
-double EffectiveHamiltonian::gsEnergy() const
-{
-    return storedGSEnergy;
 };
 
 double EffectiveHamiltonian::expValue(const opsVec& ops,

@@ -8,11 +8,6 @@ using namespace Eigen;
 double Sector::lancTolerance;
 int Sector::fullMatrixSize;
 
-void Sector::setLancTolerance(double newLancTolerance)
-{
-    lancTolerance = newLancTolerance;
-};
-
 Sector::Sector(const std::vector<int>& qNumList, int qNum, const MatrixXd& mat)
     : multiplicity(std::count(qNumList.begin(), qNumList.end(), qNum)),
       sectorMat(MatrixXd(multiplicity, multiplicity)),
@@ -60,21 +55,11 @@ Eigen::VectorXd Sector::nextHighestEvec()
 
 HamSolver::HamSolver(const MatrixXd& mat, const std::vector<int>& qNumList,
                      int targetQNum, VectorXd& bigSeed)
-    : storedLowestEvec(bigSeed)
+    : lowestEvec(bigSeed)
 {
     Sector::fullMatrixSize = mat.rows();
     Sector targetSector(qNumList, targetQNum, mat);
-    storedLowestEval = targetSector.solveForLowest(storedLowestEvec);
-};
-
-VectorXd HamSolver::lowestEvec() const
-{
-    return storedLowestEvec;
-};
-
-double HamSolver::lowestEval() const
-{
-    return storedLowestEval;
+    lowestEval = targetSector.solveForLowest(lowestEvec);
 };
 
 DMSolver::DMSolver(const Eigen::MatrixXd& mat, const std::vector<int>& qNumList,
@@ -95,23 +80,13 @@ DMSolver::DMSolver(const Eigen::MatrixXd& mat, const std::vector<int>& qNumList,
                                 (sectors[qNum].solver.eigenvalues()(i), qNum));
                                             // add indexed eigenvalues to list
     };
-    storedHighestEvecQNums.reserve(evecsToKeep);
-    storedHighestEvecs = MatrixXd::Zero(matSize, evecsToKeep);
+    highestEvecQNums.reserve(evecsToKeep);
+    highestEvecs = MatrixXd::Zero(matSize, evecsToKeep);
     auto currentIndexedEval = indexedEvals.rbegin();
     for(int j = 0; j < evecsToKeep; j++)
     {
         int qNum = currentIndexedEval++ -> second;
-        storedHighestEvecQNums.push_back(qNum);
-        storedHighestEvecs.col(j) = sectors[qNum].nextHighestEvec();
+        highestEvecQNums.push_back(qNum);
+        highestEvecs.col(j) = sectors[qNum].nextHighestEvec();
     };
-};
-
-MatrixXd DMSolver::highestEvecs() const
-{
-    return storedHighestEvecs;
-};
-
-std::vector<int> DMSolver::highestEvecQNums() const
-{
-    return storedHighestEvecQNums;
 };
