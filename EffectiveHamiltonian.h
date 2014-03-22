@@ -18,7 +18,7 @@ class EffectiveHamiltonian
                              const std::vector<int>& compQNumList,
                              const Hamiltonian& ham,
                              const Eigen::MatrixXd& matFinal,
-                             int mSFinal, int skips);
+                             int mSFinal, int mEFinal, int skips);
         double expValue(const opsVec& ops, std::vector<TheBlock>& leftBlocks,
                         std::vector<TheBlock>& rightBlocks);
         // calculates exectation value of a combination of single-site operators
@@ -28,7 +28,8 @@ class EffectiveHamiltonian
         rmMatrixXd psiGround;                  // final superblock ground state
         int lSFinal,                            // final length of system block
             lEFinal,                       // final length of environment block
-            mSFinal,                 // final number of states stored per block
+            mSFinal,           // final number of states stored in system block
+            mEFinal,      // final number of states stored in environment block
             skips;                // number of edge sites in the position basis
         
         void placeOp(const std::pair<MatrixDd, int>& op, opsMap& blockSide,

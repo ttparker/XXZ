@@ -94,20 +94,10 @@ int main()
                  << "\nBond dimension: " << mMax << "\nNumber of sweeps: "
                  << nSweeps << std::endl << std::endl;
         ham.setParams(couplingConstants, targetQNum, lSys);
-        int skips = 0;
-        for(int runningKeptStates = d * d; runningKeptStates <= mMax; skips++)
+        int skips = 0,
+            runningKeptStates = d * d;
+        for(; runningKeptStates <= mMax; skips++)
             runningKeptStates *= d;  // find how many edge sites can be skipped
-        std::vector<TheBlock> leftBlocks(lSys - 3 - skips), // initialize system
-                              rightBlocks(lSys - 3 - skips);
-        leftBlocks[0] = rightBlocks[0]
-                      = TheBlock(ham, mMax);   // initialize the one-site block
-        std::cout << "Performing iDMRG..." << std::endl;
-            // note: this iDMRG code assumes parity symmetry of the Hamiltonian
-        for(int site = 0; site < skips; site++)                   // initial ED
-            rightBlocks[site + 1] = leftBlocks[site + 1]
-                                  = leftBlocks[site].nextBlock(rightBlocks[site]);
-        Sector::lancTolerance = groundStateErrorTolerance
-                                * groundStateErrorTolerance / 2;
         bool oddSize = lSys % 2;
         int lSFinal,                        // final length of the system block
             lEFinal;                   // final length of the environment block
@@ -118,6 +108,35 @@ int main()
         }
         else
             lSFinal = lEFinal = lSys / 2 - 1;
+        bool completeED = false;
+        if(skips + 1 >= lSFinal)
+        {
+            if(skips + 1 == lSFinal && runningKeptStates == mMax * d)
+            {
+                std::cout << "Note: the bond dimension is large enough to "
+                          << "perform exact diagonalization." << std::endl;
+                completeED = true;
+            }
+            else
+            {
+                std::cout << "Error: the bond dimension is larger than "
+                          << "required for exact diagonalization."
+                          << std::endl;
+                continue;
+            };
+        };
+        std::vector<TheBlock> leftBlocks(lSys - 2 - skips),
+                              rightBlocks(lSys - 2 - skips);
+             // initialize system - the last block is only used for odd-size ED
+        leftBlocks[0] = rightBlocks[0]
+                      = TheBlock(ham, mMax);   // initialize the one-site block
+        std::cout << "Performing iDMRG..." << std::endl;
+            // note: this iDMRG code assumes parity symmetry of the Hamiltonian
+        for(int site = 0; site < skips; site++)                   // initial ED
+            rightBlocks[site + 1] = leftBlocks[site + 1]
+                                  = leftBlocks[site].nextBlock(rightBlocks[site]);
+        Sector::lancTolerance = groundStateErrorTolerance
+                                * groundStateErrorTolerance / 2;
         for(int site = skips, end = lEFinal - 1; site < end; site++)   // iDMRG
             rightBlocks[site + 1] = leftBlocks[site + 1]
                                   = leftBlocks[site].nextBlock(rightBlocks[site],
@@ -125,8 +144,8 @@ int main()
         if(oddSize)          // last half-step of iDMRG for an odd-sized system
             leftBlocks[lSFinal - 1] = leftBlocks[lSFinal - 2]
                                       .nextBlock(leftBlocks[lSFinal - 2],
-                                                 lSFinal - 2, false);
-        if(nSweeps == 0)
+                                                 lSFinal - 2, completeED);
+        if(nSweeps == 0 || completeED)
             leftBlocks[lSFinal - 1].randomSeed(rightBlocks[lEFinal - 1]);
         else
         {
