@@ -1,5 +1,6 @@
 #include <fstream>
 #include "EffectiveHamiltonian.h"
+#include "GlobalPrecisionParameters.h"
 
 using namespace Eigen;
 
@@ -30,8 +31,9 @@ void oneSiteExpValues(const MatrixDd& oneSiteOp, int rangeOfObservables,
     for(int i = 0; i < rangeOfObservables; i++)
     {
         ops[0].second = start + i;
-        oneSiteExpValues.push_back(hSuperFinal.expValue(ops, leftBlocks,
-                                                        rightBlocks));
+        double exactValue = hSuperFinal.expValue(ops, leftBlocks, rightBlocks);
+        oneSiteExpValues.push_back(std::abs(exactValue) < observableThreshold ?
+                                   0. : exactValue);
     };
     fileout << "Expectation value of one-site observable at each site:"
             << std::endl;
@@ -48,6 +50,7 @@ void twoSiteExpValues(const MatrixDd& firstTwoSiteOp,
                       std::ofstream& fileout)
 {
     opsVec ops;                     // list of observable single-site operators
+    ops.reserve(2);
     ops.push_back(std::make_pair(firstTwoSiteOp, 0));
     ops.push_back(std::make_pair(secondTwoSiteOp, 0));
     ArrayXXd correlationFunction = ArrayXXd::Zero(rangeOfObservables,
@@ -58,8 +61,11 @@ void twoSiteExpValues(const MatrixDd& firstTwoSiteOp,
         {
             ops[0].second = start + i;
             ops[1].second = start + j;
-            correlationFunction(i, j) = hSuperFinal.expValue(ops, leftBlocks,
-                                                             rightBlocks);
+            double exactValue = hSuperFinal.expValue(ops, leftBlocks,
+                                                     rightBlocks);
+            correlationFunction(i, j) = std::abs(exactValue)
+                                            < observableThreshold ?
+                                        0. : exactValue;
         };
     fileout << "Two-site correlation function: \n" << correlationFunction
             << std::endl << std::endl;

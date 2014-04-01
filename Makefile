@@ -16,11 +16,11 @@ EffectiveHamiltonian.o: $(COMMONHS2)
 
 ESolver.o: $(COMMONHS1) Hamiltonian.h TheBlock.h ESolver.h
 
-FreeFunctions.o: $(COMMONHS1) Hamiltonian.h TheBlock.h EffectiveHamiltonian.h
+FreeFunctions.o: $(COMMONHS1) Hamiltonian.h TheBlock.h EffectiveHamiltonian.h GlobalPrecisionParameters.h
 
-Lanczos.o: $(COMMONHS1) ESolver.h
+Lanczos.o: $(COMMONHS1) ESolver.h GlobalPrecisionParameters.h
 
-main.o: $(COMMONHS2) ObservableOps.h
+main.o: $(COMMONHS2) GlobalPrecisionParameters.h ObservableOps.h
 
 TheBlock.o: $(COMMONHS2)
 
