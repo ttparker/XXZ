@@ -184,13 +184,28 @@ int main()
         if(calcObservables)
         {
             std::cout << "Calculating observables..." << std::endl;
+            VectorXd oneSiteVals;
+            MatrixXd twoSiteVals;
             if(calcOneSiteExpValues)   // calculate one-site expectation values
-                oneSiteExpValues(oneSiteOp, rangeOfObservables, lSys,
-                                 hSuperFinal, leftBlocks, rightBlocks, fileout);
+                oneSiteVals = oneSiteExpValues(oneSiteOp, rangeOfObservables,
+                                               lSys, hSuperFinal, leftBlocks,
+                                               rightBlocks, fileout);
             if(calcTwoSiteExpValues)   // calculate two-site expectation values
-                twoSiteExpValues(firstTwoSiteOp, secondTwoSiteOp,
-                                 rangeOfObservables, lSys, hSuperFinal,
-                                 leftBlocks, rightBlocks, fileout);
+                twoSiteVals = twoSiteExpValues(firstTwoSiteOp, secondTwoSiteOp,
+                                               rangeOfObservables, lSys,
+                                               hSuperFinal, leftBlocks,
+                                               rightBlocks, fileout);
+            if(calcOneSiteExpValues && calcTwoSiteExpValues)
+            {
+                MatrixXd connectedCorrFunc
+                    = twoSiteVals - oneSiteVals * oneSiteVals.transpose();
+                for(int i = 0, end = rangeOfObservables * rangeOfObservables;
+                    i < end; i++)
+                    if(std::abs(connectedCorrFunc(i)) < observableThreshold)
+                        connectedCorrFunc(i) = 0.;
+                fileout << "Connected correlation function:\n"
+                        << connectedCorrFunc << std::endl << std::endl;
+            };
         };
         std::cout << std::endl;
         clock_t stopTrial = clock();
