@@ -22,7 +22,7 @@ TheBlock::TheBlock(const Hamiltonian& hamIn, int mMaxIn)
     rhoBasisH2.assign(ham.h2.begin(), ham.h2.begin() + indepCouplingOperators);
 };
 
-TheBlock TheBlock::nextBlock(TheBlock& compBlock, int l, bool exactDiag,
+TheBlock TheBlock::nextBlock(const TheBlock& compBlock, int l, bool exactDiag,
                              bool infiniteStage,
                              const TheBlock& beforeCompBlock)
 {
@@ -80,9 +80,7 @@ TheBlock TheBlock::nextBlock(TheBlock& compBlock, int l, bool exactDiag,
     for(auto op = ham.h2.begin(), end = op + indepCouplingOperators; op != end;
         op++)
         tempRhoBasisH2.push_back(changeBasis(kp(Id(m), *op)));
-    if(infiniteStage)                // copy primeToRhoBasis to reflected block
-        compBlock.primeToRhoBasis = primeToRhoBasis;
-    else                   // modify psiGround to predict the next ground state
+    if(!infiniteStage)     // modify psiGround to predict the next ground state
     {
         for(int sPrimeIndex = 0; sPrimeIndex < md; sPrimeIndex++)
                     // transpose the environment block and right-hand free site

@@ -13,13 +13,15 @@ class EffectiveHamiltonian;
 class TheBlock
 {
     public:
+        Eigen::MatrixXd primeToRhoBasis;            // change-of-basis matrix
+        
         TheBlock(int m = 0,
                  const Eigen::MatrixXd& hS = Eigen::MatrixXd(),
                  const std::vector<Eigen::MatrixXd>& rhoBasisH2 
                      = std::vector<Eigen::MatrixXd>(),
                  const std::vector<int>& qNumList = std::vector<int>());
         TheBlock(const Hamiltonian& ham, int mMaxIn);
-        TheBlock nextBlock(TheBlock& compBlock, int l = 0,
+        TheBlock nextBlock(const TheBlock& compBlock, int l = 0,
                            bool exactDiag = true, bool infiniteStage = true,
                            const TheBlock& beforeCompBlock = TheBlock());
                                                      // performs each DMRG step
@@ -39,7 +41,6 @@ class TheBlock
         int m;                              // number of states stored in block
         static rmMatrixXd psiGround;
         static int mMax;                // max size of effective Hamiltonian
-        Eigen::MatrixXd primeToRhoBasis;            // change-of-basis matrix
         static bool firstfDMRGStep;
                     // slight abuse of nomenclature - true during iDMRG as well
         

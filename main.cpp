@@ -140,9 +140,13 @@ int main()
         Sector::lancTolerance = groundStateErrorTolerance
                                 * groundStateErrorTolerance / 2;
         for(int site = skips, end = lEFinal - 1; site < end; site++)   // iDMRG
+        {
             rightBlocks[site + 1] = leftBlocks[site + 1]
                                   = leftBlocks[site].nextBlock(rightBlocks[site],
                                                                site, false);
+            rightBlocks[site].primeToRhoBasis = leftBlocks[site].primeToRhoBasis;
+                                     // copy primeToRhoBasis to reflected block
+        };
         if(oddSize)          // last half-step of iDMRG for an odd-sized system
             leftBlocks[lSFinal - 1] = leftBlocks[lSFinal - 2]
                                       .nextBlock(leftBlocks[lSFinal - 2],
