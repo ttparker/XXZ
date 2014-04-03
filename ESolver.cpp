@@ -19,7 +19,7 @@ Sector::Sector(const std::vector<int>& qNumList, int qNum, const MatrixXd& mat)
         if(*qNumListElement == qNum)
             positions.push_back(qNumListElement - firstElement);
     int elmt = 0;
-    for(int j : positions)			// fill sector matrix elements from matrix
+    for(int j : positions)           // fill sector matrix elements from matrix
         for(int i : positions)
             sectorMat(elmt++) = mat(i, j);
 };
@@ -67,12 +67,12 @@ DMSolver::DMSolver(const Eigen::MatrixXd& mat, const std::vector<int>& qNumList,
 {
     int matSize = mat.rows();
     Sector::fullMatrixSize = matSize;
-    std::map<int, Sector> sectors;			// key is the quantum number
-    std::map<double, int> indexedEvals;		// eigenvalue, then sector
+    std::map<int, Sector> sectors;                 // key is the quantum number
+    std::map<double, int> indexedEvals;              // eigenvalue, then sector
     std::set<int> qNumSet(qNumList.begin(), qNumList.end());
-    for(int qNum : qNumSet)				// make list of indexed eigenvalues
+    for(int qNum : qNumSet)                 // make list of indexed eigenvalues
     {
-        sectors.insert(sectors.end(),					// create sector
+        sectors.insert(sectors.end(),                          // create sector
                        std::make_pair(qNum, Sector(qNumList, qNum, mat)));
         sectors[qNum].solveForAll();
         for(int i = 0, end = sectors[qNum].multiplicity; i < end; i++)
