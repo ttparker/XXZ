@@ -8,15 +8,15 @@ EffectiveHamiltonian::EffectiveHamiltonian(const std::vector<int>& qNumList,
                                            const Hamiltonian& ham,
                                            const MatrixXd& matFinal,
                                            int mSFinal, int mEFinal, int skips)
-    : lSupFinal(ham.lSys), mSFinal(mSFinal), mEFinal(mEFinal), skips(skips)
+    : lSupFinal(ham.lSys), psiGround(TheBlock::psiGround), mSFinal(mSFinal),
+      mEFinal(mEFinal), skips(skips)
 {
-    VectorXd seed = TheBlock::psiGround;
     HamSolver hSuperSolver(matFinal,
                            vectorProductSum(vectorProductSum(qNumList,
                                                              ham.oneSiteQNums),
                                             vectorProductSum(compQNumList,
                                                              ham.oneSiteQNums)),
-                           ham.targetQNum, seed);
+                           ham.targetQNum, psiGround);
     gsEnergy = hSuperSolver.lowestEval;
     psiGround = hSuperSolver.lowestEvec;
     if(lSupFinal % 2)

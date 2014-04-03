@@ -34,7 +34,7 @@ VectorXd Sector::filledOutEvec(VectorXd sectorEvec) const
 
 double Sector::solveForLowest(VectorXd& bigSeed)
 {
-    VectorXd littleSeed(multiplicity);
+    rmMatrixXd littleSeed(multiplicity, 1);
     for(int i = 0; i < multiplicity; i++)
         littleSeed(i) = bigSeed(positions[i]);
     littleSeed /= littleSeed.norm();
@@ -54,7 +54,7 @@ Eigen::VectorXd Sector::nextHighestEvec()
 };
 
 HamSolver::HamSolver(const MatrixXd& mat, const std::vector<int>& qNumList,
-                     int targetQNum, VectorXd& bigSeed)
+                     int targetQNum, rmMatrixXd& bigSeed)
     : lowestEvec(bigSeed)
 {
     Sector::fullMatrixSize = mat.rows();

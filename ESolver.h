@@ -22,7 +22,7 @@ class Sector
                const Eigen::MatrixXd& mat);
         Eigen::VectorXd filledOutEvec(Eigen::VectorXd sectorEvec) const;
         double solveForLowest(Eigen::VectorXd& lowestEvec),
-               lanczos(const Eigen::MatrixXd& mat, Eigen::VectorXd& seed);
+               lanczos(const Eigen::MatrixXd& mat, rmMatrixXd& seed);
      // changes input seed to ground eigenvector - make sure seed is normalized
         void solveForAll();
         Eigen::VectorXd nextHighestEvec();
@@ -38,7 +38,7 @@ class HamSolver
         double lowestEval;
         
         HamSolver(const Eigen::MatrixXd& mat, const std::vector<int>& qNumList,
-                  int targetQNum, Eigen::VectorXd& bigSeed);
+                  int targetQNum, rmMatrixXd& bigSeed);
 };
 
 class DMSolver
