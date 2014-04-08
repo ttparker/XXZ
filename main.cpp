@@ -152,7 +152,7 @@ int main()
                                       .nextBlock(leftBlocks[lSFinal - 2],
                                                  lSFinal - 2, completeED);
         if(nSweeps == 0 || completeED)
-            leftBlocks[lSFinal - 1].randomSeed(rightBlocks[lEFinal - 1]);
+            leftBlocks[lSFinal - 1].randomSeed(rightBlocks[lEFinal - 1].m);
         else
         {
             std::cout << "Performing fDMRG..." << std::endl;
