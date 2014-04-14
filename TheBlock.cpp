@@ -6,13 +6,12 @@ using namespace Eigen;
 Hamiltonian TheBlock::ham;
 int TheBlock::mMax;
 
-TheBlock::TheBlock(int m, const MatrixXd& hS,
-                   const std::vector<MatrixXd>& rhoBasisH2,
-                   const std::vector<int>& qNumList)
-    : m(m), qNumList(qNumList), hS(hS), rhoBasisH2(rhoBasisH2) {};
+TheBlock::TheBlock(int m, const std::vector<int>& qNumList, const MatrixXd& hS,
+                   const std::vector<MatrixXd>& rhoBasisH2, int l)
+    : m(m), qNumList(qNumList), hS(hS), rhoBasisH2(rhoBasisH2), l(l) {};
 
 TheBlock::TheBlock(const Hamiltonian& hamIn, int mMaxIn)
-    : m(d), qNumList(ham.oneSiteQNums), hS(MatrixDd::Zero())
+    : m(d), qNumList(ham.oneSiteQNums), hS(MatrixDd::Zero()), l(0)
 {
     ham = hamIn;
     mMax = mMaxIn;
@@ -20,13 +19,13 @@ TheBlock::TheBlock(const Hamiltonian& hamIn, int mMaxIn)
 };
 
 TheBlock TheBlock::nextBlock(rmMatrixXd& psiGround, const TheBlock& compBlock,
-                             int l, bool exactDiag, bool infiniteStage,
+                             bool exactDiag, bool infiniteStage,
                              const TheBlock& beforeCompBlock)
 {
-    std::vector<int> hSprimeQNumList	// add in quantum numbers of new site
+    std::vector<int> hSprimeQNumList	  // add in quantum numbers of new site
         = vectorProductSum(qNumList, ham.oneSiteQNums);
     MatrixXd hSprime = kp(hS, Id_d)	+ ham.blockSiteJoin(rhoBasisH2);
-                                                    // expanded system block
+                                                       // expanded system block
     std::vector<MatrixXd> tempRhoBasisH2;
     tempRhoBasisH2.reserve(indepCouplingOperators);
     int md = m * d;
@@ -35,7 +34,7 @@ TheBlock TheBlock::nextBlock(rmMatrixXd& psiGround, const TheBlock& compBlock,
         for(auto op = ham.h2.begin(), end = op + indepCouplingOperators;
             op != end; op++)
             tempRhoBasisH2.push_back(kp(Id(m), *op));
-        return TheBlock(md, hSprime, tempRhoBasisH2, hSprimeQNumList);
+        return TheBlock(md, hSprimeQNumList, hSprime, tempRhoBasisH2, l + 1);
     };
     int compm = compBlock.m,
         compmd = compm * d;
@@ -81,9 +80,9 @@ TheBlock TheBlock::nextBlock(rmMatrixXd& psiGround, const TheBlock& compBlock,
                                           // change the environment block basis
         psiGround.resize(mMax * d * beforeCompBlock.primeToRhoBasis.rows(), 1);
     };
-    return TheBlock(mMax, changeBasis(hSprime), tempRhoBasisH2,
-                    rhoSolver.highestEvecQNums);
-                                // save expanded-block operators in new basis
+    return TheBlock(mMax, rhoSolver.highestEvecQNums, changeBasis(hSprime),
+                    tempRhoBasisH2, l + 1);
+                                  // save expanded-block operators in new basis
 };
 
 EffectiveHamiltonian TheBlock::createHSuperFinal(const TheBlock& compBlock,

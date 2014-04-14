@@ -148,7 +148,7 @@ int main()
             rightBlocks[site + 1] = leftBlocks[site + 1]
                                   = leftBlocks[site].nextBlock(psiGround,
                                                                TheBlock(),
-                                                               site, false);
+                                                               false);
             rightBlocks[site].primeToRhoBasis = leftBlocks[site].primeToRhoBasis;
                                      // copy primeToRhoBasis to reflected block
         };
@@ -158,7 +158,7 @@ int main()
                                    * leftBlocks[lSFinal - 2].m * d);
             leftBlocks[lSFinal - 1] = leftBlocks[lSFinal - 2]
                                       .nextBlock(psiGround, TheBlock(),
-                                                 lSFinal - 2, completeED);
+                                                 completeED);
         };
         if(nSweeps == 0 || completeED)
             psiGround = randomSeed(leftBlocks[lSFinal - 1].m * d
@@ -174,20 +174,20 @@ int main()
                     site++)
                     leftBlocks[site + 1] = leftBlocks[site].nextBlock(psiGround,
                                            rightBlocks[lSys - 4 - site],
-                                           site, false, false,
+                                           false, false,
                                            rightBlocks[lSys - 5 - site]);
                 reflectPredictedPsi(psiGround, mMax, rightBlocks[skips].m);
                                // reflect the system to reverse sweep direction
                 for(int site = skips, end = lSys - 4 - skips; site < end; site++)
                     rightBlocks[site + 1] = rightBlocks[site].nextBlock(psiGround,
                                             leftBlocks[lSys - 4 - site],
-                                            site, false, false,
+                                            false, false,
                                             leftBlocks[lSys - 5 - site]);
                 reflectPredictedPsi(psiGround, mMax, leftBlocks[skips].m);
                 for(int site = skips, end = lSFinal - 1; site < end; site++)
                     leftBlocks[site + 1] = leftBlocks[site].nextBlock(psiGround,
                                            rightBlocks[lSys - 4 - site],
-                                           site, false, false,
+                                           false, false,
                                            rightBlocks[lSys - 5 - site]);
                 std::cout << "Sweep " << i << " complete." << std::endl;
             };
