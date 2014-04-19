@@ -35,6 +35,8 @@ class TheBlock
         TheBlock(const Hamiltonian& ham);
         TheBlock nextBlock(const stepData& data, rmMatrixXd& psiGround);
                                                      // performs each DMRG step
+        Eigen::MatrixXd changeBasis(const Eigen::MatrixXd& mat) const;
+                   // represents operators in the basis of the new system block
         EffectiveHamiltonian createHSuperFinal(const stepData& data,
                                                const rmMatrixXd& psiGround,
                                                int skips) const;
@@ -47,11 +49,6 @@ class TheBlock
         std::vector<Eigen::MatrixXd> rhoBasisH2;
                                      // density-matrix-basis coupling operators
         int l;            // site at the end of the block (i.e. block size - 1)
-        
-        Eigen::MatrixXd changeBasis(const Eigen::MatrixXd& mat) const;
-                   // represents operators in the basis of the new system block
-    
-    friend class EffectiveHamiltonian;
 };
 
 #endif
