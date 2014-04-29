@@ -81,18 +81,19 @@ TheBlock TheBlock::nextBlock(const stepData& data, rmMatrixXd& psiGround)
                                   // save expanded-block operators in new basis
 };
 
-EffectiveHamiltonian TheBlock::createHSuperFinal(const stepData& data,
-                                                 const rmMatrixXd& psiGround,
-                                                 int skips) const
+FinalSuperblock TheBlock::createHSuperFinal(const stepData& data,
+                                            const rmMatrixXd& psiGround,
+                                            int skips) const
 {
     int compm = data.compBlock -> m;
-    return EffectiveHamiltonian(MatrixXd(kp(kp(hS, Id_d)
-                                            + data.ham.blockSiteJoin(rhoBasisH2), Id(compm * d))
-                                         + data.ham.siteSiteJoin(m, compm)
-                                         + kp(Id(m * d), data.ham.blockSiteJoin(data.compBlock -> rhoBasisH2)
-                                                         + kp(data.compBlock -> hS, Id_d))),
-                                qNumList, data.compBlock -> qNumList, data,
-                                psiGround, m, compm, skips);
+    return FinalSuperblock(MatrixXd(kp(kp(hS, Id_d)
+                                       + data.ham.blockSiteJoin(rhoBasisH2),
+                                       Id(compm * d))
+                                    + data.ham.siteSiteJoin(m, compm)
+                                    + kp(Id(m * d), data.ham.blockSiteJoin(data.compBlock -> rhoBasisH2)
+                                                    + kp(data.compBlock -> hS, Id_d))),
+                           qNumList, data.compBlock -> qNumList, data,
+                           psiGround, m, compm, skips);
 };
 
 MatrixXd TheBlock::changeBasis(const MatrixXd& mat) const
