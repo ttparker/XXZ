@@ -29,16 +29,17 @@ void Hamiltonian::setParams(const std::vector<double>& couplingConstantsIn,
     lSys = lSysIn;
 };
 
-MatrixXd Hamiltonian::blockSiteJoin(const std::vector<MatrixXd>& rhoBasisH2) const
+MatrixX_t Hamiltonian::blockSiteJoin(const std::vector<MatrixX_t>& rhoBasisH2)
+    const
 {
-    MatrixXd plusMinus = kp(rhoBasisSigmaplus, sigmaminus);
+    MatrixX_t plusMinus = kp(rhoBasisSigmaplus, sigmaminus);
     return jz * kp(rhoBasisSigmaz, sigmaz) + 2 * jxy * (plusMinus
                                                         + plusMinus.adjoint());
 };
 
-MatrixXd Hamiltonian::siteSiteJoin(int ml, int mlE) const
+MatrixX_t Hamiltonian::siteSiteJoin(int ml, int mlE) const
 {
-    MatrixXd plusMinus = kp(kp(sigmaplus, Id(mlE)), sigmaminus);
+    MatrixX_t plusMinus = kp(kp(sigmaplus, Id(mlE)), sigmaminus);
     return kp(Id(ml), jz * kp(kp(sigmaz, Id(mlE)), sigmaz)
                       + 2 * jxy * (plusMinus + plusMinus.adjoint()));
 };
