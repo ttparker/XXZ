@@ -102,6 +102,7 @@ double Sector::lanczos(const MatrixX_t& mat, rmMatrixX_t& seed,
         dstemr_(&JOBZ, &RANGE, &N, D.data(), E.data(), &VL, &VU, &IL, &IU, &M,
                 W.data(), Z.data(), &LDZ, &NZC, ISUPPZ.data(), &TRYRAC,
                 WORK.data(), &LWORK, IWORK.data(), &LIWORK, &INFO);
+                                                      // calculate ground state
         seed = (basisVecs * Z).normalized();
         gStateDiff = std::abs(1 - std::abs(seed.col(0).dot(oldGS)));
     } while(N < minIters || (N < maxIters && gStateDiff > lancTolerance));
