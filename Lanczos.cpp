@@ -66,6 +66,8 @@ double Sector::lanczos(const MatrixX_t& mat, rmMatrixX_t& seed,
     std::vector<int> IWORK;
     int LIWORK,
         INFO;
+    double gStateDiff;
+          // change in ground state vector across subsequent Lanczos iterations
     do
     {
         i++;
@@ -101,14 +103,22 @@ double Sector::lanczos(const MatrixX_t& mat, rmMatrixX_t& seed,
                 W.data(), Z.data(), &LDZ, &NZC, ISUPPZ.data(), &TRYRAC,
                 WORK.data(), &LWORK, IWORK.data(), &LIWORK, &INFO);
         seed = (basisVecs * Z).normalized();
-    } while(N < minIters ||
-            (std::abs(1 - std::abs(seed.col(0).dot(oldGS))) > lancTolerance
-             && N < maxIters));
-    if(N == maxIters)
+        gStateDiff = std::abs(1 - std::abs(seed.col(0).dot(oldGS)));
+    } while(N < minIters || (N < maxIters && gStateDiff > lancTolerance));
+    if(N == maxIters && gStateDiff > lancTolerance)
+                          // check if last iteration converges to an eigenstate
     {
-        std::cerr << "Lanczos algorithm failed to converge after " << N
-                  << " iterations." << std::endl;
-        exit(EXIT_FAILURE);
+        double gStateError = std::abs(1 - std::abs(seed.col(0)
+                                                   .dot((mat * seed).col(0)
+                                                        .normalized())));
+        if(gStateError > lancTolerance)
+        {
+            std::cerr << "Lanczos algorithm failed to converge after "
+                      << maxIters << " iterations. The inner product of the "
+                      << "final approximate ground state and its normalized "
+                      << "image differs from 1 by " << gStateError << std::endl;
+            exit(EXIT_FAILURE);
+        };
     };
     return W.front();
 };
