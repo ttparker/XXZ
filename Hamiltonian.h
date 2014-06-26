@@ -26,7 +26,7 @@ class Hamiltonian
         
         MatrixX_t blockSiteJoin(const std::vector<MatrixX_t>& rhoBasisH2) const,
                                            // appends free site to system block
-                  siteSiteJoin(int m1, int m2) const;
+                  siteSiteJoin(int m, int compm) const;
                                            // joins the two free sites together
     
     friend class TheBlock;

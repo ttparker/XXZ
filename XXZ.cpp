@@ -17,7 +17,7 @@ Hamiltonian::Hamiltonian() : oneSiteQNums({1, -1})
                  0., 0.;
     sigmaminus << 0., 0.,
                   1., 0.;
-    sigmaz << 1., 0.,
+    sigmaz << 1.,  0.,
               0., -1.;                                 // define Pauli matrices
 };
 
@@ -37,9 +37,9 @@ MatrixX_t Hamiltonian::blockSiteJoin(const std::vector<MatrixX_t>& rhoBasisH2)
                                                         + plusMinus.adjoint());
 };
 
-MatrixX_t Hamiltonian::siteSiteJoin(int ml, int mlE) const
+MatrixX_t Hamiltonian::siteSiteJoin(int m, int compm) const
 {
-    MatrixX_t plusMinus = kp(kp(sigmaplus, Id(mlE)), sigmaminus);
-    return kp(Id(ml), jz * kp(kp(sigmaz, Id(mlE)), sigmaz)
-                      + 2 * jxy * (plusMinus + plusMinus.adjoint()));
+    MatrixX_t plusMinus = kp(kp(sigmaplus, Id(compm)), sigmaminus);
+    return kp(Id(m), jz * kp(kp(sigmaz, Id(compm)), sigmaz)
+                     + 2 * jxy * (plusMinus + plusMinus.adjoint()));
 };
