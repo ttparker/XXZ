@@ -21,7 +21,7 @@ class Hamiltonian
     
     private:
         std::vector<double> couplingConstants;
-        std::vector<MatrixD_t, Eigen::aligned_allocator<MatrixD_t>> h2;
+        std::vector<MatrixD_t, Eigen::aligned_allocator<MatrixD_t>> siteBasisH2;
                                                // site-basis coupling operators
         
         MatrixX_t blockSiteJoin(const std::vector<MatrixX_t>& rhoBasisH2) const,

@@ -10,7 +10,8 @@ TheBlock::TheBlock(int m, const std::vector<int>& qNumList, const MatrixX_t& hS,
 TheBlock::TheBlock(const Hamiltonian& ham)
     : m(d), qNumList(ham.oneSiteQNums), hS(MatrixD_t::Zero()), l(0)
 {
-    rhoBasisH2.assign(ham.h2.begin(), ham.h2.begin() + indepCouplingOperators);
+    rhoBasisH2.assign(ham.siteBasisH2.begin(),
+                      ham.siteBasisH2.begin() + indepCouplingOperators);
 };
 
 TheBlock TheBlock::nextBlock(const stepData& data, rmMatrixX_t& psiGround)
@@ -27,7 +28,7 @@ TheBlock TheBlock::nextBlock(const stepData& data, rmMatrixX_t& psiGround)
     if(data.exactDiag)
       // if near edge of system, no truncation necessary so skip DMRG algorithm
     {
-        for(auto op = data.ham.h2.begin(), end = op + indepCouplingOperators;
+        for(auto op = data.ham.siteBasisH2.begin(), end = op + indepCouplingOperators;
             op != end; op++)
             tempRhoBasisH2.push_back(kp(Id(m), *op));
         return TheBlock(md, hSprimeQNumList, hSprime, tempRhoBasisH2, l + 1);
@@ -62,7 +63,7 @@ TheBlock TheBlock::nextBlock(const stepData& data, rmMatrixX_t& psiGround)
     DMSolver rhoSolver(psiGround * psiGround.adjoint(), hSprimeQNumList, data.mMax);
                                              // find density matrix eigenstates
     primeToRhoBasis = rhoSolver.highestEvecs; // construct change-of-basis matrix
-    for(auto op = data.ham.h2.begin(), end = op + indepCouplingOperators;
+    for(auto op = data.ham.siteBasisH2.begin(), end = op + indepCouplingOperators;
         op != end; op++)
         tempRhoBasisH2.push_back(changeBasis(kp(Id(m), *op)));
     if(!data.infiniteStage)     // modify psiGround to predict the next ground state
