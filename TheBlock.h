@@ -34,6 +34,8 @@ class TheBlock
         TheBlock(const Hamiltonian& ham);
         TheBlock nextBlock(const stepData& data, rmMatrixX_t& psiGround);
                                                      // performs each DMRG step
+        MatrixX_t createHprime(const TheBlock* block, const Hamiltonian& ham,
+                               std::vector<int>& hPrimeQNumList) const;
         FinalSuperblock createHSuperFinal(const stepData& data,
                                           rmMatrixX_t& psiGround, int skips)
                                           const;
