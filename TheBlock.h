@@ -34,8 +34,6 @@ class TheBlock
         TheBlock(const Hamiltonian& ham);
         TheBlock nextBlock(const stepData& data, rmMatrixX_t& psiGround);
                                                      // performs each DMRG step
-        MatrixX_t createHprime(const TheBlock* block, const Hamiltonian& ham,
-                               std::vector<int>& hPrimeQNumList) const;
         FinalSuperblock createHSuperFinal(const stepData& data,
                                           rmMatrixX_t& psiGround, int skips)
                                           const;
@@ -50,6 +48,10 @@ class TheBlock
                                      // density-matrix-basis coupling operators
         int l;            // site at the end of the block (i.e. block size - 1)
         
+        MatrixX_t createHprime(const TheBlock* block, const Hamiltonian& ham,
+                               std::vector<int>& hPrimeQNumList) const;
+        std::vector<MatrixX_t> createNewRhoBasisH2(const vecMatD_t& siteBasisH2,
+                                                   bool exactDiag) const;
         MatrixX_t changeBasis(const MatrixX_t& mat) const;
                    // represents operators in the basis of the new system block
 };

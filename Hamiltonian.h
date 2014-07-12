@@ -6,6 +6,8 @@
 #define kp kroneckerProduct
 #define Id(size) MatrixXd::Identity(size, size)
 
+typedef std::vector<MatrixD_t, Eigen::aligned_allocator<MatrixD_t>> vecMatD_t;
+
 class Hamiltonian
 {
     public:
@@ -21,8 +23,7 @@ class Hamiltonian
     
     private:
         std::vector<double> couplingConstants;
-        std::vector<MatrixD_t, Eigen::aligned_allocator<MatrixD_t>> siteBasisH2;
-                                               // site-basis coupling operators
+        vecMatD_t siteBasisH2;                 // site-basis coupling operators
         
         MatrixX_t blockSiteJoin(const std::vector<MatrixX_t>& rhoBasisH2) const,
                                            // appends free site to system block
