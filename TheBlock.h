@@ -2,6 +2,8 @@
 #define THEBLOCK_H
 
 #include "Hamiltonian.h"
+#include "ESolver.h"
+
 #define Id_d Matrix<double, d, d>::Identity()       // one-site identity matrix
 
 class FinalSuperblock;
@@ -52,6 +54,10 @@ class TheBlock
                                std::vector<int>& hPrimeQNumList) const;
         std::vector<MatrixX_t> createNewRhoBasisH2(const vecMatD_t& siteBasisH2,
                                                    bool exactDiag) const;
+        HamSolver createHSuperSolver(const stepData& data,
+                                     const MatrixX_t& hSprime,
+                                     const std::vector<int>& hSprimeQNumList,
+                                     rmMatrixX_t& psiGround) const;
         MatrixX_t changeBasis(const MatrixX_t& mat) const;
                    // represents operators in the basis of the new system block
 };
