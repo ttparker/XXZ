@@ -3,7 +3,9 @@
 
 const int globalMinLancIters = 3,
           globalMaxLancIters = 100;
-const double observableThreshold = 1e-11;
+const double fallbackLancTolerance = 1.e-4,
+              // reduced error tolerance to accept if Lanczos fails to converge
+             observableThreshold = 1.e-11;
 // if any observable's absolute value is smaller than this, then round it to zero
 
 #endif
