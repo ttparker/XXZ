@@ -27,16 +27,16 @@ TheBlock TheBlock::nextBlock(const stepData& data, rmMatrixX_t& psiGround,
     HamSolver hSuperSolver = createHSuperSolver(data, hSprime, hSprimeQNumList,
                                                 psiGround);
                                            // calculate superblock ground state
-    psiGround = hSuperSolver.lowestEvec;                        // ground state
     int compm = data.compBlock -> m;
-    psiGround.resize(md, compm * d);
-    DMSolver rhoSolver(psiGround, hSprimeQNumList, data.mMax);
+    hSuperSolver.lowestEvec.resize(md, compm * d);
+    DMSolver rhoSolver(hSuperSolver, data.mMax);
                                              // find density matrix eigenstates
     cumulativeTruncationError += rhoSolver.truncationError;
     primeToRhoBasis = rhoSolver.highestEvecs; // construct change-of-basis matrix
     int nextBlockm = primeToRhoBasis.cols();
     if(!data.infiniteStage)     // modify psiGround to predict the next ground state
     {
+        psiGround = hSuperSolver.lowestEvec;
         for(int sPrimeIndex = 0; sPrimeIndex < md; sPrimeIndex++)
                 // transpose the environment block and the right-hand free site
         {
@@ -106,9 +106,8 @@ HamSolver TheBlock::createHSuperSolver(const stepData& data,
     MatrixX_t hSuper = kp(hSprime, Id(data.compBlock -> m * d))
                        + data.ham.siteSiteJoin(m, data.compBlock -> m)
                        + kp(Id(m * d), hEprime);                  // superblock
-    return HamSolver(hSuper,
-                     vectorProductSum(hSprimeQNumList, hEprimeQNumList),
-                     scaledTargetQNum, psiGround, data.lancTolerance);
+    return HamSolver(hSuper, hSprimeQNumList, hEprimeQNumList, scaledTargetQNum,
+                     psiGround, data.lancTolerance);
 };
 
 MatrixX_t TheBlock::changeBasis(const MatrixX_t& mat) const

@@ -17,7 +17,7 @@ class Sector
         
         Sector(const std::vector<int>& qNumList, int qNum, const MatrixX_t& mat);
         VectorX_t filledOutEvec(VectorX_t sectorEvec, int fullMatrixSize) const;
-        double solveForLowest(VectorX_t& lowestEvec, double lancTolerance),
+        double solveForLowest(rmMatrixX_t& lowestEvec, double lancTolerance),
                lanczos(const MatrixX_t& mat, rmMatrixX_t& seed,
                        double lancTolerance);
      // changes input seed to ground eigenvector - make sure seed is normalized
@@ -31,11 +31,19 @@ class Sector
 class HamSolver
 {
     public:
-        VectorX_t lowestEvec;
+        rmMatrixX_t lowestEvec;
         double lowestEval;
         
-        HamSolver(const MatrixX_t& mat, const std::vector<int>& qNumList,
-                  int targetQNum, rmMatrixX_t& bigSeed, double lancTolerance);
+        HamSolver(const MatrixX_t& mat, const std::vector<int>& hSprimeQNumList,
+                  const std::vector<int>& hEprimeQNumList, int targetQNum,
+                  rmMatrixX_t& bigSeed, double lancTolerance);
+    
+    private:
+        int targetQNum;
+        std::vector<int> hSprimeQNumList,
+                         hEprimeQNumList;           // TODO: check order, and in assignment
+    
+    friend class DMSolver;
 };
 
 class DMSolver
@@ -45,8 +53,7 @@ class DMSolver
         std::vector<int> highestEvecQNums;
         double truncationError;
         
-        DMSolver(const rmMatrixX_t& psiGround, const std::vector<int>& qNumList,
-                 int maxEvecsToKeep);
+        DMSolver(const HamSolver hSuperSolver, int maxEvecsToKeep);
     
     friend class TheBlock;
 };

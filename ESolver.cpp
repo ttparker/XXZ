@@ -2,7 +2,7 @@
 #include <set>
 #include "GlobalPrecisionParameters.h"
 #include "main.h"
-#include "ESolver.h"
+#include "FreeFunctions.h"
 
 using namespace Eigen;
 
@@ -30,7 +30,7 @@ VectorX_t Sector::filledOutEvec(VectorX_t sectorEvec, int fullMatrixSize) const
     return longEvec;
 };
 
-double Sector::solveForLowest(VectorX_t& bigSeed, double lancTolerance)
+double Sector::solveForLowest(rmMatrixX_t& bigSeed, double lancTolerance)
 {
     rmMatrixX_t littleSeed(multiplicity, 1);
     for(int i = 0; i < multiplicity; i++)
@@ -52,34 +52,38 @@ VectorX_t Sector::nextHighestEvec(int fullMatrixSize)
                          fullMatrixSize);
 };
 
-HamSolver::HamSolver(const MatrixX_t& mat, const std::vector<int>& qNumList,
+HamSolver::HamSolver(const MatrixX_t& mat,
+                     const std::vector<int>& hSprimeQNumList,
+                     const std::vector<int>& hEprimeQNumList,
                      int targetQNum, rmMatrixX_t& bigSeed, double lancTolerance)
-    : lowestEvec(bigSeed)
+    : lowestEvec(bigSeed), targetQNum(targetQNum),
+      hSprimeQNumList(hSprimeQNumList), hEprimeQNumList(hEprimeQNumList)
 {
-    Sector targetSector(qNumList, targetQNum, mat);
+    Sector targetSector(vectorProductSum(hSprimeQNumList, hEprimeQNumList),
+                        targetQNum, mat);
     lowestEval = targetSector.solveForLowest(lowestEvec, lancTolerance);
 };
 
-DMSolver::DMSolver(const rmMatrixX_t& psiGround,
-                   const std::vector<int>& qNumList, int maxEvecsToKeep)
+DMSolver::DMSolver(const HamSolver hSuperSolver, int maxEvecsToKeep)
     : truncationError(0.)
 {
     std::map<int, Sector> sectors;        // key is the sector's quantum number
     std::multimap<double, int> indexedEvals;         // eigenvalue, then sector
-    std::set<int> qNumSet(qNumList.begin(), qNumList.end());
-    MatrixX_t mat = psiGround * psiGround.adjoint();
+    std::set<int> qNumSet(hSuperSolver.hSprimeQNumList.begin(),
+                          hSuperSolver.hSprimeQNumList.end());
+    MatrixX_t mat = hSuperSolver.lowestEvec * hSuperSolver.lowestEvec.adjoint();
     for(int qNum : qNumSet)                 // make list of indexed eigenvalues
     {
         sectors.insert(sectors.end(),
-                       std::make_pair(qNum, Sector(qNumList, qNum, mat)));
-                                                               // create sector
+                       std::make_pair(qNum, Sector(hSuperSolver.hSprimeQNumList,
+                                                   qNum, mat))); // create sector
         sectors[qNum].solveForAll();
         for(int i = 0, end = sectors[qNum].multiplicity; i < end; i++)
             indexedEvals.insert(std::pair<double, int>(sectors[qNum].solver
                                                        .eigenvalues()(i), qNum));
                                              // add indexed eigenvalues to list
     };
-    int matSize = psiGround.rows(),
+    int matSize = hSuperSolver.lowestEvec.rows(),
         evecsToKeep;
     auto weight = indexedEvals.crbegin();
     if(matSize <= maxEvecsToKeep)
