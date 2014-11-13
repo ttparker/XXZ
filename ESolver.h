@@ -45,7 +45,7 @@ class DMSolver
         std::vector<int> highestEvecQNums;
         double truncationError;
         
-        DMSolver(const MatrixX_t& mat, const std::vector<int>& qNumList,
+        DMSolver(const rmMatrixX_t& psiGround, const std::vector<int>& qNumList,
                  int maxEvecsToKeep);
     
     friend class TheBlock;

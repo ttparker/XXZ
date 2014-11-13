@@ -60,24 +60,26 @@ HamSolver::HamSolver(const MatrixX_t& mat, const std::vector<int>& qNumList,
     lowestEval = targetSector.solveForLowest(lowestEvec, lancTolerance);
 };
 
-DMSolver::DMSolver(const MatrixX_t& mat, const std::vector<int>& qNumList,
-                   int maxEvecsToKeep)
+DMSolver::DMSolver(const rmMatrixX_t& psiGround,
+                   const std::vector<int>& qNumList, int maxEvecsToKeep)
     : truncationError(0.)
 {
     std::map<int, Sector> sectors;        // key is the sector's quantum number
     std::multimap<double, int> indexedEvals;         // eigenvalue, then sector
     std::set<int> qNumSet(qNumList.begin(), qNumList.end());
+    MatrixX_t mat = psiGround * psiGround.adjoint();
     for(int qNum : qNumSet)                 // make list of indexed eigenvalues
     {
-        sectors.insert(sectors.end(),                          // create sector
+        sectors.insert(sectors.end(),
                        std::make_pair(qNum, Sector(qNumList, qNum, mat)));
+                                                               // create sector
         sectors[qNum].solveForAll();
         for(int i = 0, end = sectors[qNum].multiplicity; i < end; i++)
             indexedEvals.insert(std::pair<double, int>(sectors[qNum].solver
                                                        .eigenvalues()(i), qNum));
                                              // add indexed eigenvalues to list
     };
-    int matSize = mat.rows(),
+    int matSize = psiGround.rows(),
         evecsToKeep;
     auto weight = indexedEvals.crbegin();
     if(matSize <= maxEvecsToKeep)

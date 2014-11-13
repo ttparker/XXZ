@@ -30,8 +30,8 @@ TheBlock TheBlock::nextBlock(const stepData& data, rmMatrixX_t& psiGround,
     psiGround = hSuperSolver.lowestEvec;                        // ground state
     int compm = data.compBlock -> m;
     psiGround.resize(md, compm * d);
-    DMSolver rhoSolver(psiGround * psiGround.adjoint(), hSprimeQNumList,
-                       data.mMax);           // find density matrix eigenstates
+    DMSolver rhoSolver(psiGround, hSprimeQNumList, data.mMax);
+                                             // find density matrix eigenstates
     cumulativeTruncationError += rhoSolver.truncationError;
     primeToRhoBasis = rhoSolver.highestEvecs; // construct change-of-basis matrix
     int nextBlockm = primeToRhoBasis.cols();
