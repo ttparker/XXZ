@@ -1,30 +1,44 @@
 #ifndef ESOLVER_H
 #define ESOLVER_H
 
-class Sector
+class HamSector
 {
-    public:
-        Sector() {};
-    
     private:
         std::vector<int> positions;
                               // which rows and columns of matrix are in sector
         int multiplicity;                       // size of this symmetry sector
         MatrixX_t sectorMat;                                 // sector operator
-        Eigen::SelfAdjointEigenSolver<MatrixX_t> solver;      // DM eigensystem
-        int sectorColumnCounter;             // tracks which sector eigenvector
-                                           // to fill into a matrix eigenvector
         
-        Sector(const std::vector<int>& qNumList, int qNum, const MatrixX_t& mat);
-        VectorX_t filledOutEvec(VectorX_t sectorEvec, int fullMatrixSize) const;
+        HamSector(const std::vector<int>& qNumList, int qNum,
+                  const MatrixX_t& mat);
         double solveForLowest(rmMatrixX_t& lowestEvec, double lancTolerance),
                lanczos(const MatrixX_t& mat, rmMatrixX_t& seed,
                        double lancTolerance);
      // changes input seed to ground eigenvector - make sure seed is normalized
-        void solveForAll();
-        VectorX_t nextHighestEvec(int fullMatrixSize);
+        VectorX_t filledOutEvec(VectorX_t sectorEvec, int fullMatrixSize) const;
     
     friend class HamSolver;
+};
+
+class DMSector
+{
+    public:
+        DMSector() {};
+    
+    private:
+        Eigen::SelfAdjointEigenSolver<MatrixX_t> solver;      // DM eigensystem
+        MatrixX_t sectorMat;                                 // sector operator
+        std::vector<int> positions;
+                              // which rows and columns of matrix are in sector
+        int multiplicity;                       // size of this symmetry sector
+        int sectorColumnCounter;           // tracks which sector eigenvector
+                                           // to fill into a matrix eigenvector
+        
+        DMSector(const MatrixX_t& sectorMat, const std::vector<int>& positions);
+        void solveForAll();
+        VectorX_t nextHighestEvec(int fullMatrixSize);
+        VectorX_t filledOutEvec(VectorX_t sectorEvec, int fullMatrixSize) const;
+    
     friend class DMSolver;
 };
 
@@ -39,9 +53,9 @@ class HamSolver
                   rmMatrixX_t& bigSeed, double lancTolerance);
     
     private:
-        int targetQNum;
         std::vector<int> hSprimeQNumList,
-                         hEprimeQNumList;           // TODO: check order, and in assignment
+                         hEprimeQNumList;
+        int targetQNum;
     
     friend class DMSolver;
 };

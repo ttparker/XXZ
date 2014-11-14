@@ -6,31 +6,38 @@
 
 using namespace Eigen;
 
-Sector::Sector(const std::vector<int>& qNumList, int qNum, const MatrixX_t& mat)
-    : multiplicity(std::count(qNumList.begin(), qNumList.end(), qNum)),
-      sectorMat(MatrixX_t(multiplicity, multiplicity)),
-      sectorColumnCounter(multiplicity)
+std::vector<int> findTargetQNumPositions(const std::vector<int>& qNumList,
+                                         int targetQNum)
 {
-    positions.reserve(multiplicity);
-    for(auto firstElement = qNumList.begin(), qNumListElement = firstElement,
-        end = qNumList.end(); qNumListElement != end; qNumListElement++)
-        if(*qNumListElement == qNum)
+    std::vector<int> positions;
+    for(auto firstElement = qNumList.begin(),
+        qNumListElement = firstElement, end = qNumList.end();
+        qNumListElement != end; qNumListElement++)
+        if(*qNumListElement == targetQNum)
             positions.push_back(qNumListElement - firstElement);
-    int elmt = 0;
-    for(int j : positions)           // fill sector matrix elements from matrix
-        for(int i : positions)
-            sectorMat(elmt++) = mat(i, j);
+    return positions;
 };
 
-VectorX_t Sector::filledOutEvec(VectorX_t sectorEvec, int fullMatrixSize) const
+MatrixX_t createCrossSectorBlock(const MatrixX_t& mat,
+                                 const std::vector<int>& rowPositions,
+                                 const std::vector<int>& colPositions)
+                                         // pick out one block from full matrix
 {
-    VectorX_t longEvec = VectorX_t::Zero(fullMatrixSize);
-    for(int i = 0; i < multiplicity; i++)
-        longEvec(positions[i]) = sectorEvec(i);
-    return longEvec;
+    MatrixX_t crossSectorBlock(rowPositions.size(), colPositions.size());
+    int elmt = 0;
+    for(int j : colPositions)
+        for(int i : rowPositions)
+            crossSectorBlock(elmt++) = mat(i, j);
+    return crossSectorBlock;
 };
 
-double Sector::solveForLowest(rmMatrixX_t& bigSeed, double lancTolerance)
+HamSector::HamSector(const std::vector<int>& qNumList, int qNum,
+                     const MatrixX_t& mat)
+    : positions(findTargetQNumPositions(qNumList, qNum)),
+      multiplicity(positions.size()),
+      sectorMat(createCrossSectorBlock(mat, positions, positions)) {};
+
+double HamSector::solveForLowest(rmMatrixX_t& bigSeed, double lancTolerance)
 {
     rmMatrixX_t littleSeed(multiplicity, 1);
     for(int i = 0; i < multiplicity; i++)
@@ -41,48 +48,84 @@ double Sector::solveForLowest(rmMatrixX_t& bigSeed, double lancTolerance)
     return lowestEval;
 };
 
-void Sector::solveForAll()
+VectorX_t HamSector::filledOutEvec(VectorX_t sectorEvec, int fullMatrixSize)
+    const
+{
+    VectorX_t longEvec = VectorX_t::Zero(fullMatrixSize);
+    for(int i = 0; i < multiplicity; i++)
+        longEvec(positions[i]) = sectorEvec(i);
+    return longEvec;
+};
+
+DMSector::DMSector(const MatrixX_t& sectorMat, const std::vector<int>& positions)
+    : sectorMat(sectorMat), positions(positions), multiplicity(positions.size()),
+      sectorColumnCounter(multiplicity) {};
+
+void DMSector::solveForAll()
 {
     solver.compute(sectorMat);
 };
 
-VectorX_t Sector::nextHighestEvec(int fullMatrixSize)
+VectorX_t DMSector::nextHighestEvec(int fullMatrixSize)
 {
     return filledOutEvec(solver.eigenvectors().col(--sectorColumnCounter),
                          fullMatrixSize);
+};
+
+VectorX_t DMSector::filledOutEvec(VectorX_t sectorEvec, int fullMatrixSize)
+    const
+{
+    VectorX_t longEvec = VectorX_t::Zero(fullMatrixSize);
+    for(int i = 0; i < multiplicity; i++)
+        longEvec(positions[i]) = sectorEvec(i);
+    return longEvec;
 };
 
 HamSolver::HamSolver(const MatrixX_t& mat,
                      const std::vector<int>& hSprimeQNumList,
                      const std::vector<int>& hEprimeQNumList,
                      int targetQNum, rmMatrixX_t& bigSeed, double lancTolerance)
-    : lowestEvec(bigSeed), targetQNum(targetQNum),
-      hSprimeQNumList(hSprimeQNumList), hEprimeQNumList(hEprimeQNumList)
+    : lowestEvec(bigSeed), hSprimeQNumList(hSprimeQNumList),
+      hEprimeQNumList(hEprimeQNumList), targetQNum(targetQNum)
 {
-    Sector targetSector(vectorProductSum(hSprimeQNumList, hEprimeQNumList),
-                        targetQNum, mat);
+    HamSector targetSector(vectorProductSum(hSprimeQNumList, hEprimeQNumList),
+                           targetQNum, mat);
     lowestEval = targetSector.solveForLowest(lowestEvec, lancTolerance);
 };
 
 DMSolver::DMSolver(const HamSolver hSuperSolver, int maxEvecsToKeep)
     : truncationError(0.)
 {
-    std::map<int, Sector> sectors;        // key is the sector's quantum number
+    std::map<int, DMSector> sectors;        // key is the sector's quantum number
     std::multimap<double, int> indexedEvals;         // eigenvalue, then sector
     std::set<int> qNumSet(hSuperSolver.hSprimeQNumList.begin(),
                           hSuperSolver.hSprimeQNumList.end());
-    MatrixX_t mat = hSuperSolver.lowestEvec * hSuperSolver.lowestEvec.adjoint();
     for(int qNum : qNumSet)                 // make list of indexed eigenvalues
-    {
-        sectors.insert(sectors.end(),
-                       std::make_pair(qNum, Sector(hSuperSolver.hSprimeQNumList,
-                                                   qNum, mat))); // create sector
-        sectors[qNum].solveForAll();
-        for(int i = 0, end = sectors[qNum].multiplicity; i < end; i++)
-            indexedEvals.insert(std::pair<double, int>(sectors[qNum].solver
-                                                       .eigenvalues()(i), qNum));
-                                             // add indexed eigenvalues to list
-    };
+        if(std::count(hSuperSolver.hEprimeQNumList.begin(),
+                      hSuperSolver.hEprimeQNumList.end(),
+                      hSuperSolver.targetQNum - qNum))
+        {
+            std::vector<int> rowPositions
+                = findTargetQNumPositions(hSuperSolver.hSprimeQNumList, qNum);
+            MatrixX_t crossSectorBlock
+                = createCrossSectorBlock(hSuperSolver.lowestEvec,
+                                         rowPositions,
+                                         findTargetQNumPositions(hSuperSolver
+                                                                 .hEprimeQNumList,
+                                                                 hSuperSolver.targetQNum
+                                                                 - qNum));
+            sectors.insert(sectors.end(),
+                           std::make_pair(qNum,
+                                          DMSector(crossSectorBlock
+                                                   * crossSectorBlock.adjoint(),
+                                                   rowPositions)));
+                                                               // create sector
+            sectors[qNum].solveForAll();
+            for(int i = 0, end = sectors[qNum].multiplicity; i < end; i++)
+                indexedEvals.insert(std::pair<double, int>
+                                    (sectors[qNum].solver.eigenvalues()(i),
+                                     qNum)); // add indexed eigenvalues to list
+        };
     int matSize = hSuperSolver.lowestEvec.rows(),
         evecsToKeep;
     auto weight = indexedEvals.crbegin();
