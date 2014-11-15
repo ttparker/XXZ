@@ -9,7 +9,7 @@ using namespace Eigen;
 std::vector<int> findTargetQNumPositions(const std::vector<int>& qNumList,
                                          int targetQNum)
 {
-    std::vector<int> positions;
+    std::vector<int> positions; // which rows and columns of matrix are in sector
     for(auto firstElement = qNumList.begin(),
         qNumListElement = firstElement, end = qNumList.end();
         qNumListElement != end; qNumListElement++)
@@ -31,30 +31,34 @@ MatrixX_t createCrossSectorBlock(const MatrixX_t& mat,
     return crossSectorBlock;
 };
 
-HamSector::HamSector(const std::vector<int>& qNumList, int qNum,
-                     const MatrixX_t& mat)
-    : positions(findTargetQNumPositions(qNumList, qNum)),
-      multiplicity(positions.size()),
-      sectorMat(createCrossSectorBlock(mat, positions, positions)) {};
-
-double HamSector::solveForLowest(rmMatrixX_t& bigSeed, double lancTolerance)
+VectorX_t filledOutEvec(const VectorX_t& sectorEvec, int fullMatrixSize,
+                        const std::vector<int>& positions)
 {
+    VectorX_t longEvec = VectorX_t::Zero(fullMatrixSize);
+    for(int i = 0, end = sectorEvec.size(); i < end; i++)
+        longEvec(positions[i]) = sectorEvec(i);
+    return longEvec;
+};
+
+HamSolver::HamSolver(const MatrixX_t& mat,
+                     const std::vector<int>& hSprimeQNumList,
+                     const std::vector<int>& hEprimeQNumList,
+                     int targetQNum, rmMatrixX_t& bigSeed, double lancTolerance)
+    : hSprimeQNumList(hSprimeQNumList), hEprimeQNumList(hEprimeQNumList),
+      targetQNum(targetQNum)
+{
+    std::vector<int> positions
+        = findTargetQNumPositions(vectorProductSum(hSprimeQNumList,
+                                                   hEprimeQNumList),
+                                  targetQNum);
+    MatrixX_t sectorMat = createCrossSectorBlock(mat, positions, positions);
+    int multiplicity = positions.size();
     rmMatrixX_t littleSeed(multiplicity, 1);
     for(int i = 0; i < multiplicity; i++)
         littleSeed(i) = bigSeed(positions[i]);
     littleSeed.normalize();
-    double lowestEval = lanczos(sectorMat, littleSeed, lancTolerance);
-    bigSeed = filledOutEvec(littleSeed, bigSeed.rows());
-    return lowestEval;
-};
-
-VectorX_t HamSector::filledOutEvec(VectorX_t sectorEvec, int fullMatrixSize)
-    const
-{
-    VectorX_t longEvec = VectorX_t::Zero(fullMatrixSize);
-    for(int i = 0; i < multiplicity; i++)
-        longEvec(positions[i]) = sectorEvec(i);
-    return longEvec;
+    lowestEval = lanczos(sectorMat, littleSeed, lancTolerance);
+    lowestEvec = filledOutEvec(littleSeed, mat.rows(), positions);
 };
 
 DMSector::DMSector(const MatrixX_t& sectorMat, const std::vector<int>& positions)
@@ -79,18 +83,6 @@ VectorX_t DMSector::filledOutEvec(VectorX_t sectorEvec, int fullMatrixSize)
     for(int i = 0; i < multiplicity; i++)
         longEvec(positions[i]) = sectorEvec(i);
     return longEvec;
-};
-
-HamSolver::HamSolver(const MatrixX_t& mat,
-                     const std::vector<int>& hSprimeQNumList,
-                     const std::vector<int>& hEprimeQNumList,
-                     int targetQNum, rmMatrixX_t& bigSeed, double lancTolerance)
-    : lowestEvec(bigSeed), hSprimeQNumList(hSprimeQNumList),
-      hEprimeQNumList(hEprimeQNumList), targetQNum(targetQNum)
-{
-    HamSector targetSector(vectorProductSum(hSprimeQNumList, hEprimeQNumList),
-                           targetQNum, mat);
-    lowestEval = targetSector.solveForLowest(lowestEvec, lancTolerance);
 };
 
 DMSolver::DMSolver(const HamSolver hSuperSolver, int maxEvecsToKeep)

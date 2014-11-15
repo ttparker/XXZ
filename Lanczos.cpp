@@ -20,7 +20,7 @@ extern "C"
 
 using namespace Eigen;
 
-double HamSector::lanczos(const MatrixX_t& mat, rmMatrixX_t& seed,
+double HamSolver::lanczos(const MatrixX_t& mat, rmMatrixX_t& seed,
                           double lancTolerance)
 {
     int matSize = mat.rows();
