@@ -23,26 +23,6 @@ class HamSolver
     friend class DMSolver;
 };
 
-class DMSector
-{
-    public:
-        DMSector() {};
-    
-    private:
-        Eigen::SelfAdjointEigenSolver<MatrixX_t> solver;      // DM eigensystem
-        MatrixX_t sectorMat;                                 // sector operator
-        std::vector<int> positions;
-                              // which rows and columns of matrix are in sector
-        int sectorColumnCounter;           // tracks which sector eigenvector
-                                           // to fill into a matrix eigenvector
-        
-        DMSector(const MatrixX_t& sectorMat, const std::vector<int>& positions);
-        void solveForAll();
-        VectorX_t nextHighestEvec(int fullMatrixSize);
-    
-    friend class DMSolver;
-};
-
 class DMSolver
 {
     private:

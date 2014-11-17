@@ -61,28 +61,15 @@ HamSolver::HamSolver(const MatrixX_t& mat,
     lowestEvec = filledOutEvec(littleSeed, mat.rows(), positions);
 };
 
-DMSector::DMSector(const MatrixX_t& sectorMat, const std::vector<int>& positions)
-    : sectorMat(sectorMat), positions(positions),
-      sectorColumnCounter(positions.size()) {};
-
-void DMSector::solveForAll()
-{
-    solver.compute(sectorMat);
-};
-
-VectorX_t DMSector::nextHighestEvec(int fullMatrixSize)
-{
-    return filledOutEvec(solver.eigenvectors().col(--sectorColumnCounter),
-                         fullMatrixSize, positions);
-};
-
 DMSolver::DMSolver(const HamSolver hSuperSolver, int maxEvecsToKeep)
     : truncationError(0.)
 {
-    std::map<int, DMSector> sectors;        // key is the sector's quantum number
-    std::multimap<double, int> indexedEvals;         // eigenvalue, then sector
     std::set<int> qNumSet(hSuperSolver.hSprimeQNumList.begin(),
                           hSuperSolver.hSprimeQNumList.end());
+    std::map<int, std::vector<int>> qNumPositions;
+    // lists positions of each quantum number within hSuperSolver.hSprimeQNumList
+    std::multimap<double, std::pair<int, VectorX_t>> indexedEvecs;
+                                // DM eigenvalue, then sector, then eigenvector
     for(int qNum : qNumSet)                 // make list of indexed eigenvalues
         if(std::count(hSuperSolver.hEprimeQNumList.begin(),
                       hSuperSolver.hEprimeQNumList.end(),
@@ -90,28 +77,32 @@ DMSolver::DMSolver(const HamSolver hSuperSolver, int maxEvecsToKeep)
         {
             std::vector<int> rowPositions
                 = findTargetQNumPositions(hSuperSolver.hSprimeQNumList, qNum);
+            qNumPositions
+                .insert(qNumPositions.end(),
+                        std::pair<int, std::vector<int>>(qNum, rowPositions));
             MatrixX_t crossSectorBlock
                 = createCrossSectorBlock(hSuperSolver.lowestEvec,
                                          rowPositions,
                                          findTargetQNumPositions(hSuperSolver
                                                                  .hEprimeQNumList,
-                                                                 hSuperSolver.targetQNum
+                                                                 hSuperSolver
+                                                                 .targetQNum
                                                                  - qNum));
-            sectors.insert(sectors.end(),
-                           std::make_pair(qNum,
-                                          DMSector(crossSectorBlock
-                                                   * crossSectorBlock.adjoint(),
-                                                   rowPositions)));
-                                                               // create sector
-            sectors[qNum].solveForAll();
-            for(int i = 0, end = rowPositions.size(); i < end; i++)
-                indexedEvals.insert(std::pair<double, int>
-                                    (sectors[qNum].solver.eigenvalues()(i),
-                                     qNum)); // add indexed eigenvalues to list
+            SelfAdjointEigenSolver<MatrixX_t>
+                DMSectorSolver(crossSectorBlock * crossSectorBlock.adjoint());
+                                                 // find DM sector eigenvectors
+            for(int i = 0, end = crossSectorBlock.rows(); i < end; i++)
+                indexedEvecs
+                    .insert(std::pair<double, std::pair<int, VectorX_t>>
+                            (DMSectorSolver.eigenvalues()(i),
+                             std::pair<int, VectorX_t>(qNum,
+                                                       DMSectorSolver
+                                                       .eigenvectors().col(i))));
+                                             // add indexed eigenvalues to list
         };
     int matSize = hSuperSolver.lowestEvec.rows(),
         evecsToKeep;
-    auto weight = indexedEvals.crbegin();
+    auto weight = indexedEvecs.crbegin();
     if(matSize <= maxEvecsToKeep)
         evecsToKeep = matSize;
     else
@@ -137,15 +128,17 @@ DMSolver::DMSolver(const HamSolver hSuperSolver, int maxEvecsToKeep)
                       << " states." << std::endl;
     };
     weight++;                    // now points to first truncated DM eigenvalue
-    for(auto end = indexedEvals.crend(); weight != end; weight++)
+    for(auto end = indexedEvecs.crend(); weight != end; weight++)
         truncationError += weight -> first;
     highestEvecQNums.reserve(evecsToKeep);
     highestEvecs = MatrixX_t::Zero(matSize, evecsToKeep);
-    auto currentIndexedEval = indexedEvals.crbegin();
-    for(int j = 0; j < evecsToKeep; j++)
+    auto currentIndexedEvec = indexedEvecs.crbegin();
+    for(int j = 0; j < evecsToKeep; j++, currentIndexedEvec++)
     {
-        int qNum = currentIndexedEval++ -> second;
-        highestEvecQNums.push_back(qNum);
-        highestEvecs.col(j) = sectors[qNum].nextHighestEvec(matSize);
+        highestEvecQNums.push_back(currentIndexedEvec -> second.first);
+        highestEvecs.col(j) = filledOutEvec(currentIndexedEvec -> second.second,
+                                            matSize,
+                                            qNumPositions[currentIndexedEvec
+                                                          -> second.first]);
     };
 };
