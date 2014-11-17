@@ -73,16 +73,7 @@ void DMSector::solveForAll()
 VectorX_t DMSector::nextHighestEvec(int fullMatrixSize)
 {
     return filledOutEvec(solver.eigenvectors().col(--sectorColumnCounter),
-                         fullMatrixSize);
-};
-
-VectorX_t DMSector::filledOutEvec(VectorX_t sectorEvec, int fullMatrixSize)
-    const
-{
-    VectorX_t longEvec = VectorX_t::Zero(fullMatrixSize);
-    for(int i = 0; i < multiplicity; i++)
-        longEvec(positions[i]) = sectorEvec(i);
-    return longEvec;
+                         fullMatrixSize, positions);
 };
 
 DMSolver::DMSolver(const HamSolver hSuperSolver, int maxEvecsToKeep)

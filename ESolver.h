@@ -40,7 +40,6 @@ class DMSector
         DMSector(const MatrixX_t& sectorMat, const std::vector<int>& positions);
         void solveForAll();
         VectorX_t nextHighestEvec(int fullMatrixSize);
-        VectorX_t filledOutEvec(VectorX_t sectorEvec, int fullMatrixSize) const;
     
     friend class DMSolver;
 };
