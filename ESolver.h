@@ -33,7 +33,6 @@ class DMSector
         MatrixX_t sectorMat;                                 // sector operator
         std::vector<int> positions;
                               // which rows and columns of matrix are in sector
-        int multiplicity;                       // size of this symmetry sector
         int sectorColumnCounter;           // tracks which sector eigenvector
                                            // to fill into a matrix eigenvector
         

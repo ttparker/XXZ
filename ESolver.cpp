@@ -62,8 +62,8 @@ HamSolver::HamSolver(const MatrixX_t& mat,
 };
 
 DMSector::DMSector(const MatrixX_t& sectorMat, const std::vector<int>& positions)
-    : sectorMat(sectorMat), positions(positions), multiplicity(positions.size()),
-      sectorColumnCounter(multiplicity) {};
+    : sectorMat(sectorMat), positions(positions),
+      sectorColumnCounter(positions.size()) {};
 
 void DMSector::solveForAll()
 {
@@ -104,7 +104,7 @@ DMSolver::DMSolver(const HamSolver hSuperSolver, int maxEvecsToKeep)
                                                    rowPositions)));
                                                                // create sector
             sectors[qNum].solveForAll();
-            for(int i = 0, end = sectors[qNum].multiplicity; i < end; i++)
+            for(int i = 0, end = rowPositions.size(); i < end; i++)
                 indexedEvals.insert(std::pair<double, int>
                                     (sectors[qNum].solver.eigenvalues()(i),
                                      qNum)); // add indexed eigenvalues to list
