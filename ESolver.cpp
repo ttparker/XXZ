@@ -101,35 +101,36 @@ DMSolver::DMSolver(const HamSolver hSuperSolver, int maxEvecsToKeep)
                                              // add indexed eigenvalues to list
         };
     int matSize = hSuperSolver.lowestEvec.rows(),
-        evecsToKeep;
+        nIndexedEvecs = indexedEvecs.size(), // most states allowed by symmetry
+        evecsToKeep = std::min({matSize, maxEvecsToKeep, nIndexedEvecs});
     auto weight = indexedEvecs.crbegin();
-    if(matSize <= maxEvecsToKeep)
-        evecsToKeep = matSize;
-    else
+    std::advance(weight, evecsToKeep - 1);
+    for(; evecsToKeep >= 1 && weight -> first == 0; evecsToKeep--, weight--);
+                                // eliminate null vectors of the density matrix
+    if(evecsToKeep < nIndexedEvecs)
+                                 // have you truncated below the highest number
+                                 // of DM eigenvectors allowed by symmetry?
     {
-        evecsToKeep = maxEvecsToKeep;
-        std::advance(weight, maxEvecsToKeep - 1);
         for(; evecsToKeep >= 1
-              && (weight -> first == 0
-                  || (weight -> first - std::next(weight, 1) -> first)
-                      / std::abs(weight -> first) < degenerateDMCutoff);
+              && (weight -> first - std::next(weight, 1) -> first)
+                 / std::abs(weight -> first) < degenerateDMCutoff;
             evecsToKeep--, weight--);
-              // find the the max number of eigenvectors to keep that do not
-              // terminate inside a degenerate eigenspace of the density matrix
-        if(evecsToKeep == 0)
-        {
-            std::cerr << "More than mMax highest-weighted density-matrix "
-                      << "eigenvectors are degenerate." << std::endl;
-            exit(EXIT_FAILURE);
-        }
-        else if(evecsToKeep != maxEvecsToKeep)
-            std::cout << "Warning: mMax truncation ends in a degenerate DM "
-                      << "eigenspace, lowering cutoff to " << evecsToKeep
-                      << " states." << std::endl;
+                   // find the highest-weighted eigenvector that does not terminate 
+                   // inside a degenerate eigenspace of the density matrix
+        weight++;                    // now points to first truncated DM eigenvalue
+        for(auto end = indexedEvecs.crend(); weight != end; weight++)
+            truncationError += weight -> first;
     };
-    weight++;                    // now points to first truncated DM eigenvalue
-    for(auto end = indexedEvecs.crend(); weight != end; weight++)
-        truncationError += weight -> first;
+    if(evecsToKeep == 0)
+    {
+        std::cerr << "More than mMax highest-weighted density-matrix "
+                  << "eigenvectors are degenerate." << std::endl;
+        exit(EXIT_FAILURE);
+    }
+    else if(evecsToKeep != maxEvecsToKeep)
+        std::cout << "Warning: mMax truncation ends in a degenerate DM "
+                  << "eigenspace, lowering cutoff to " << evecsToKeep
+                  << " states." << std::endl;
     highestEvecQNums.reserve(evecsToKeep);
     highestEvecs = MatrixX_t::Zero(matSize, evecsToKeep);
     auto currentIndexedEvec = indexedEvecs.crbegin();
